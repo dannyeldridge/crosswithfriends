@@ -12,12 +12,16 @@ export async function getGameEvents(gid: string) {
   const ms = Date.now() - startTime;
   console.log(`getGameEvents(${gid}) took ${ms}ms`);
 
-  // If only the create event remains (events were cleaned up), restore the
+  // If cell events were cleaned up (no updateCell events remain), restore the
   // solved state from the snapshot so the client sees the completed grid.
-  if (events.length === 1 && events[0].type === 'create') {
+  // After cleanup, non-cell events like updateDisplayName/updateColor may still
+  // exist from users revisiting the game.
+  const createEvent = events.find((e: any) => e.type === 'create');
+  const hasCellEvents = events.some((e: any) => e.type === 'updateCell');
+  if (createEvent && !hasCellEvents) {
     const snapshot = await getGameSnapshot(gid);
     if (snapshot) {
-      const game = events[0].params.game;
+      const game = createEvent.params.game;
       const snap = snapshot.snapshot as any;
       if (snap.grid) game.grid = snap.grid;
       if (snap.users) game.users = snap.users;
