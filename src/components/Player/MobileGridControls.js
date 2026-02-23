@@ -93,7 +93,12 @@ export default class MobileGridControls extends GridControls {
     const gridHeight = this.grid.rows * size * scale;
     const minY = Math.min(0, usableHeight - gridHeight - PADDING);
     const maxY = PADDING;
-    translateY = Math.min(Math.max(translateY, minY), maxY);
+    // Only apply general Y clamping for non-cell-selection calls (e.g. pinch-zoom).
+    // For cell selection, the fitCurrentClue block handles panning only when needed,
+    // avoiding unwanted grid movement when switching between visible cells.
+    if (!fitCurrentClue) {
+      translateY = Math.min(Math.max(translateY, minY), maxY);
+    }
 
     if (fitCurrentClue) {
       const posX = selected.c * size;
