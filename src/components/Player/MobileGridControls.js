@@ -33,6 +33,7 @@ export default class MobileGridControls extends GridControls {
     this.wasUnfocused = Date.now() - 1000;
     this.lastTouchMove = Date.now();
     this.boundCenterGridX = () => this.centerGridX();
+    this._fitOnScreenTimer = null;
   }
 
   componentDidMount() {
@@ -49,6 +50,7 @@ export default class MobileGridControls extends GridControls {
   }
 
   componentWillUnmount() {
+    clearTimeout(this._fitOnScreenTimer);
     if (window.visualViewport && this._handleViewportResize) {
       window.visualViewport.removeEventListener('resize', this._handleViewportResize);
     }
@@ -61,7 +63,8 @@ export default class MobileGridControls extends GridControls {
       }
     }
     if (prevProps.selected.r !== this.props.selected.r || prevProps.selected.c !== this.props.selected.c) {
-      this.fitOnScreen(true);
+      clearTimeout(this._fitOnScreenTimer);
+      this._fitOnScreenTimer = setTimeout(() => this.fitOnScreen(true), 200);
     }
   }
 
@@ -99,11 +102,18 @@ export default class MobileGridControls extends GridControls {
       const paddingY = (rect.height - this.grid.rows * size) / 2;
       const tX = (posX + paddingX) * scale;
       const tY = (posY + paddingY) * scale;
-      // Use the actual visible height (accounting for keyboard) instead of the
-      // layout container height, so the selected cell isn't panned behind the keyboard
       const visibleHeight = usableHeight;
+
       translateX = _.clamp(translateX, -tX, rect.width - tX - size * scale);
-      translateY = _.clamp(translateY, -tY, visibleHeight - tY - size * scale);
+
+      // Only adjust vertical panning if the cell is actually off-screen
+      // (above the viewport or behind the keyboard). This prevents aggressive
+      // panning when the cell is already visible.
+      const cellScreenY = tY + translateY;
+      const cellBottom = cellScreenY + size * scale;
+      if (cellScreenY < 0 || cellBottom > visibleHeight) {
+        translateY = _.clamp(translateY, -tY, visibleHeight - tY - size * scale);
+      }
     }
 
     this.setState({
