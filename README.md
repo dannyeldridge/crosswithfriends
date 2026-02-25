@@ -43,40 +43,35 @@ Hosted at [crosswithfriends.com](https://www.crosswithfriends.com).
 
 ### Testing & CI
 
-- Expanded test coverage from 79 to 191 tests across 13 suites
-- Added TypeCheck CI job
-- Branch protection on `master`: requires ESLint, Prettier, Tests, TypeCheck, and Build checks
+- Expanded test coverage to 310 tests across 21 suites
+- Split CI into separate frontend/backend jobs for faster feedback
+- Branch protection on `master`: requires ESLint, Prettier, Tests (Frontend + Server), TypeCheck (Frontend + Server), and Build checks
 
 ## Getting Started
 
-1. Install `nvm` and clone the repo:
+1. Clone the repo and use Node 18:
 
    ```sh
    git clone https://github.com/ScaleOvenStove/crosswithfriends.git
    cd crosswithfriends
-   ```
-
-2. Use Node 18:
-
-   ```sh
-   nvm install
-   nvm use
-   ```
-
-3. Install dependencies:
-
-   ```sh
+   nvm install && nvm use
    yarn
    ```
 
-4. Set up local environment:
-
-   Copy `server/.env.example` to `server/.env.local` and fill in your Postgres credentials and other config.
-
-5. Run the dev server:
+2. Start the dev server:
 
    ```sh
    yarn start
+   ```
+
+   This is all you need for **frontend development**. The CRA dev server automatically proxies `/api/*` requests to the production backend — no local server or database required.
+
+3. **(Optional) Full-stack development** — if you need to work on the backend:
+
+   Copy `server/.env.example` to `server/.env.local` and fill in your Postgres credentials, then:
+
+   ```sh
+   REACT_APP_USE_LOCAL_SERVER=true yarn start
    ```
 
 ## Development Workflow

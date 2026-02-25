@@ -42,10 +42,12 @@ router.get('/:userId', async (req, res, next) => {
     }
 
     let inProgress: Awaited<ReturnType<typeof getInProgressGames>> = [];
-    try {
-      inProgress = await getInProgressGames(userId);
-    } catch (err) {
-      console.error('getInProgressGames error:', err);
+    if (isOwner) {
+      try {
+        inProgress = await getInProgressGames(userId);
+      } catch (err) {
+        console.error('getInProgressGames error:', err);
+      }
     }
 
     res.json({

@@ -1,4 +1,47 @@
 /* eslint no-plusplus: "off", no-bitwise: "off" */
+
+// Windows-1252 bytes 0x80-0x9F map to different Unicode code points than
+// String.fromCharCode gives. This lookup avoids depending on TextDecoder
+// (unavailable in Jest/jsdom) and handles curly quotes, em dashes, etc.
+const CP1252 = {
+  0x80: 0x20ac,
+  0x82: 0x201a,
+  0x83: 0x0192,
+  0x84: 0x201e,
+  0x85: 0x2026,
+  0x86: 0x2020,
+  0x87: 0x2021,
+  0x88: 0x02c6,
+  0x89: 0x2030,
+  0x8a: 0x0160,
+  0x8b: 0x2039,
+  0x8c: 0x0152,
+  0x8e: 0x017d,
+  0x91: 0x2018,
+  0x92: 0x2019,
+  0x93: 0x201c,
+  0x94: 0x201d,
+  0x95: 0x2022,
+  0x96: 0x2013,
+  0x97: 0x2014,
+  0x98: 0x02dc,
+  0x99: 0x2122,
+  0x9a: 0x0161,
+  0x9b: 0x203a,
+  0x9c: 0x0153,
+  0x9e: 0x017e,
+  0x9f: 0x0178,
+};
+
+function decodeWindows1252(byteArray) {
+  let result = '';
+  for (let i = 0; i < byteArray.length; i++) {
+    const b = byteArray[i];
+    result += String.fromCharCode(CP1252[b] || b);
+  }
+  return result;
+}
+
 function getExtension(bytes, code) {
   // struct byte format is 4S H H
   let i = 0;
@@ -29,8 +72,7 @@ function getRebus(bytes) {
     return undefined; // no rebus
   }
   const solbytes = getExtension(bytes, rtbl);
-  const enc = new TextDecoder('ISO-8859-1');
-  const solstring = enc.decode(new Uint8Array(solbytes));
+  const solstring = decodeWindows1252(solbytes);
   if (!solstring) {
     return undefined;
   }
@@ -99,19 +141,21 @@ export default function PUZtoJSON(buffer) {
 
   const ncol = bytes[44];
   const nrow = bytes[45];
-  if (!(bytes[50] === 0 && bytes[51] === 0)) {
-    throw new Error('Scrambled PUZ file');
-  }
+  const isScrambled = !(bytes[50] === 0 && bytes[51] === 0);
 
   for (let i = 0; i < nrow; i++) {
     grid[i] = [];
 
     for (let j = 0; j < ncol; j++) {
-      const letter = String.fromCharCode(bytes[52 + i * ncol + j]);
+      // For scrambled files, read from the player state grid (offset after solution)
+      // where '.' still marks black squares and '-' marks unsolved white squares.
+      const offset = isScrambled ? 52 + ncol * nrow + i * ncol + j : 52 + i * ncol + j;
+      const letter = String.fromCharCode(bytes[offset]);
       if (letter !== '.') {
         grid[i][j] = {
           type: 'white',
-          solution: letter,
+          // Scrambled files have encrypted solutions; use empty string
+          solution: isScrambled ? '' : letter,
         };
       } else {
         grid[i][j] = {
@@ -145,13 +189,13 @@ export default function PUZtoJSON(buffer) {
 
   let ibyte = 52 + ncol * nrow * 2;
   function readString() {
-    let result = '';
-    let b = bytes[ibyte++];
-    while (ibyte < bytes.length && b !== 0) {
-      result += String.fromCharCode(b);
-      b = bytes[ibyte++];
+    const start = ibyte;
+    while (ibyte < bytes.length && bytes[ibyte] !== 0) {
+      ibyte++;
     }
-    return result;
+    const str = decodeWindows1252(bytes.slice(start, ibyte));
+    ibyte++; // skip null terminator
+    return str;
   }
 
   info.title = readString();
@@ -176,6 +220,16 @@ export default function PUZtoJSON(buffer) {
     grid = addRebusToGrid(grid, rebus);
   }
 
+  // Detect contest puzzles: all white cells have the same solution letter (e.g. all 'X')
+  const whiteSolutions = grid.flatMap((row) =>
+    row.filter((cell) => cell.type === 'white').map((cell) => cell.solution)
+  );
+  const contest = whiteSolutions.length > 0 && whiteSolutions.every((s) => s === whiteSolutions[0]);
+  if (contest) {
+    // Clear fake solution values so the puzzle behaves like iPUZ with missing solution
+    grid = grid.map((row) => row.map((cell) => (cell.type === 'white' ? {...cell, solution: ''} : cell)));
+  }
+
   return {
     grid,
     info,
@@ -183,5 +237,6 @@ export default function PUZtoJSON(buffer) {
     shades,
     across,
     down,
+    contest,
   };
 }

@@ -47,6 +47,11 @@ describe('iPUZtoJSON', () => {
     expect(result.down).toBeDefined();
   });
 
+  it('marks puzzle with solution as not contest', () => {
+    const result = iPUZtoJSON(makeBuffer(makeMinimalIPUZ()));
+    expect(result.contest).toBe(false);
+  });
+
   it('converts solution grid correctly', () => {
     const result = iPUZtoJSON(makeBuffer(makeMinimalIPUZ()));
     expect(result.grid).toEqual([
@@ -137,17 +142,63 @@ describe('iPUZtoJSON', () => {
     expect(result.circles).toHaveLength(1);
   });
 
+  it('detects shades from style.color', () => {
+    const ipuz = makeMinimalIPUZ({
+      puzzle: [
+        [{cell: 1, style: {color: 'dcdcdc'}}, {cell: 2}],
+        [{cell: 3}, '#'],
+      ],
+    });
+    const result = iPUZtoJSON(makeBuffer(ipuz));
+    expect(result.shades).toContain(0);
+    expect(result.shades).toHaveLength(1);
+  });
+
+  it('detects shades from style.highlight', () => {
+    const ipuz = makeMinimalIPUZ({
+      puzzle: [
+        [{cell: 1, style: {highlight: true}}, {cell: 2}],
+        [{cell: 3}, '#'],
+      ],
+    });
+    const result = iPUZtoJSON(makeBuffer(ipuz));
+    expect(result.shades).toContain(0);
+    expect(result.shades).toHaveLength(1);
+  });
+
+  it('detects both circles and shades on different cells', () => {
+    const ipuz = makeMinimalIPUZ({
+      puzzle: [
+        [
+          {cell: 1, style: {shapebg: 'circle'}},
+          {cell: 2, style: {highlight: true}},
+        ],
+        [{cell: 3}, '#'],
+      ],
+    });
+    const result = iPUZtoJSON(makeBuffer(ipuz));
+    expect(result.circles).toEqual([0]);
+    expect(result.shades).toEqual([1]);
+  });
+
   it('returns empty circles and shades by default', () => {
     const result = iPUZtoJSON(makeBuffer(makeMinimalIPUZ()));
     expect(result.circles).toEqual([]);
     expect(result.shades).toEqual([]);
   });
 
-  describe('missing solution field', () => {
+  describe('missing solution field (contest puzzle)', () => {
     it('does not crash when solution is missing', () => {
       const ipuz = makeMinimalIPUZ();
       delete ipuz.solution;
       expect(() => iPUZtoJSON(makeBuffer(ipuz))).not.toThrow();
+    });
+
+    it('marks puzzle as contest when solution is missing', () => {
+      const ipuz = makeMinimalIPUZ();
+      delete ipuz.solution;
+      const result = iPUZtoJSON(makeBuffer(ipuz));
+      expect(result.contest).toBe(true);
     });
 
     it('builds grid from puzzle field with empty white cells', () => {
@@ -160,6 +211,21 @@ describe('iPUZtoJSON', () => {
       expect(result.grid[1][0]).toBe('');
       // Black squares still marked correctly
       expect(result.grid[1][1]).toBe('.');
+    });
+
+    it('handles object-wrapped black squares in puzzle field', () => {
+      const ipuz = makeMinimalIPUZ({
+        puzzle: [
+          [{cell: 1}, {cell: '#'}],
+          [{cell: null}, {cell: 3}],
+        ],
+      });
+      delete ipuz.solution;
+      const result = iPUZtoJSON(makeBuffer(ipuz));
+      expect(result.grid[0][0]).toBe(''); // white cell
+      expect(result.grid[0][1]).toBe('.'); // {cell: '#'} = black
+      expect(result.grid[1][0]).toBe('.'); // {cell: null} = black
+      expect(result.grid[1][1]).toBe(''); // white cell
     });
 
     it('still extracts info, clues, and circles', () => {

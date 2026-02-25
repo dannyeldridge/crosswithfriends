@@ -15,6 +15,7 @@ import {toArr} from '../../lib/jsUtils';
 import {toHex, darken, GREENISH} from '../../lib/colors';
 
 const skipFilledSquaresKey = 'skip-filled-squares';
+const autoAdvanceCursorKey = 'auto-advance-cursor';
 const vimModeKey = 'vim-mode';
 const vimModeRegex = /^\d+(a|d)*$/;
 
@@ -30,6 +31,7 @@ export default class Game extends Component {
       vimInsert: false,
       vimCommand: false,
       skipFilledSquares: true,
+      autoAdvanceCursor: true,
       colorAttributionMode: false,
       expandMenu: false,
     };
@@ -57,6 +59,17 @@ export default class Game extends Component {
       console.error('Failed to parse local storage: skipFilledSquares');
     }
     this.setState({skipFilledSquares});
+
+    let autoAdvanceCursor = this.state.autoAdvanceCursor;
+    try {
+      const storedValue = localStorage.getItem(autoAdvanceCursorKey);
+      if (storedValue != null) {
+        autoAdvanceCursor = JSON.parse(storedValue);
+      }
+    } catch (e) {
+      console.error('Failed to parse local storage: autoAdvanceCursor');
+    }
+    this.setState({autoAdvanceCursor});
 
     this.componentDidUpdate({});
   }
@@ -164,6 +177,16 @@ export default class Game extends Component {
     this.props.gameModel.reset(scope, force);
   };
 
+  handleMarkSolved = () => {
+    this.props.gameModel.markSolved();
+    this.props.onChange();
+  };
+
+  handleUnmarkSolved = () => {
+    this.props.gameModel.unmarkSolved();
+    this.props.onChange();
+  };
+
   handleKeybind = (mode) => {
     this.setState({
       vimMode: mode === 'vim',
@@ -202,6 +225,14 @@ export default class Game extends Component {
       const skipFilledSquares = !prevState.skipFilledSquares;
       localStorage.setItem(skipFilledSquaresKey, JSON.stringify(skipFilledSquares));
       return {skipFilledSquares: skipFilledSquares};
+    });
+  };
+
+  handleToggleAutoAdvanceCursor = () => {
+    this.setState((prevState) => {
+      const autoAdvanceCursor = !prevState.autoAdvanceCursor;
+      localStorage.setItem(autoAdvanceCursorKey, JSON.stringify(autoAdvanceCursor));
+      return {autoAdvanceCursor};
     });
   };
 
@@ -351,12 +382,14 @@ export default class Game extends Component {
         onVimCommandPressEscape={this.handleRefocus}
         skipFilledSquares={this.state.skipFilledSquares}
         onToggleSkipFilledSquares={this.handleToggleSkipFilledSquares}
+        autoAdvanceCursor={this.state.autoAdvanceCursor}
         colorAttributionMode={this.state.colorAttributionMode}
         mobile={mobile}
         pickups={this.props.pickups}
         optimisticCounter={optimisticCounter}
         onCheck={this.handleCheck}
         onReveal={this.handleReveal}
+        contest={!!this.game.contest}
         {...themeStyles}
       />
     );
@@ -392,7 +425,9 @@ export default class Game extends Component {
         autocheckMode={autocheckMode}
         vimMode={vimMode}
         skipFilledSquares={skipFilledSquares}
+        autoAdvanceCursor={this.state.autoAdvanceCursor}
         solved={solved}
+        contest={!!this.game.contest}
         vimInsert={vimInsert}
         vimCommand={vimCommand}
         onStartClock={this.handleStartClock}
@@ -401,10 +436,13 @@ export default class Game extends Component {
         onCheck={this.handleCheck}
         onReveal={this.handleReveal}
         onReset={this.handleReset}
+        onMarkSolved={this.handleMarkSolved}
+        onUnmarkSolved={this.handleUnmarkSolved}
         onKeybind={this.handleKeybind}
         onTogglePencil={this.handleTogglePencil}
         onToggleVimMode={this.handleToggleVimMode}
         onToggleSkipFilledSquares={this.handleToggleSkipFilledSquares}
+        onToggleAutoAdvanceCursor={this.handleToggleAutoAdvanceCursor}
         onToggleAutocheck={this.handleToggleAutocheck}
         onToggleListView={this.handleToggleListView}
         onToggleChat={this.handleToggleChat}

@@ -499,10 +499,14 @@ export default class MobileGridControls extends GridControls {
           this.setState({dbgstr: `TYPE letter ${char.toUpperCase()}`});
           if (delay) {
             setTimeout(() => {
-              this.typeLetter(char.toUpperCase(), char.toUpperCase() === char, {nextClueIfFilled: true});
+              this.typeLetter(char.toUpperCase(), char.toUpperCase() === char, {
+                nextClueIfFilled: this.props.autoAdvanceCursor,
+              });
             }, delay);
           } else {
-            this.typeLetter(char.toUpperCase(), char.toUpperCase() === char, {nextClueIfFilled: true});
+            this.typeLetter(char.toUpperCase(), char.toUpperCase() === char, {
+              nextClueIfFilled: this.props.autoAdvanceCursor,
+            });
           }
           delay += 20;
         }

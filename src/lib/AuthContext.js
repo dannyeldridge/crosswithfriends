@@ -26,12 +26,8 @@ export function AuthProvider({children}) {
           const me = await getMe(result.accessToken);
           if (me) {
             setUser(me);
-            // Auto-link the current dfac-id to the account
-            try {
-              await linkIdentity(result.accessToken, getLocalId());
-            } catch (e) {
-              // Non-critical if linking fails
-            }
+            // Auto-link the current dfac-id to the account (fire-and-forget, don't block page load)
+            linkIdentity(result.accessToken, getLocalId()).catch(() => {});
           }
         }
       } catch (e) {
@@ -60,12 +56,8 @@ export function AuthProvider({children}) {
   const handleLoginSuccess = useCallback(async (tokens) => {
     setAccessToken(tokens.accessToken);
     setUser(tokens.user);
-    // Link current dfac-id to the newly logged-in account
-    try {
-      await linkIdentity(tokens.accessToken, getLocalId());
-    } catch (e) {
-      // Non-critical
-    }
+    // Link current dfac-id to the newly logged-in account (fire-and-forget)
+    linkIdentity(tokens.accessToken, getLocalId()).catch(() => {});
   }, []);
 
   const handleLogout = useCallback(async () => {

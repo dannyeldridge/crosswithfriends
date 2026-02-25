@@ -187,22 +187,22 @@ export default class GridControls extends Component {
     this.actions[action](shiftKey);
   }
 
-  handleAltKey(key, shiftKey) {
-    const lowerKey = key.toLowerCase();
+  handleAltKey(code, shiftKey) {
+    if (this.props.contest) return; // no check/reveal for contest puzzles
     const altAction = shiftKey ? this.props.onReveal : this.props.onCheck;
-    if (lowerKey === 's') {
+    if (code === 'KeyS') {
       altAction('square');
     }
-    if (lowerKey === 'w') {
+    if (code === 'KeyW') {
       altAction('word');
     }
-    if (lowerKey === 'p') {
+    if (code === 'KeyP') {
       altAction('puzzle');
     }
   }
 
   // takes in key, a string
-  _handleKeyDown = (key, shiftKey, altKey) => {
+  _handleKeyDown = (key, shiftKey, altKey, code) => {
     const actionKeys = {
       ArrowLeft: 'left',
       ArrowUp: 'up',
@@ -239,7 +239,7 @@ export default class GridControls extends Component {
       return true;
     }
     if (altKey) {
-      this.handleAltKey(key, shiftKey);
+      this.handleAltKey(code, shiftKey);
       return true;
     }
     if (key === 'Escape') {
@@ -247,14 +247,14 @@ export default class GridControls extends Component {
     } else if (!this.props.frozen) {
       const letter = key.toUpperCase();
       if (validLetter(letter)) {
-        this.typeLetter(letter, shiftKey);
+        this.typeLetter(letter, shiftKey, {nextClueIfFilled: this.props.autoAdvanceCursor});
         return true;
       }
     }
     return undefined;
   };
 
-  _handleKeyDownVim = (key, shiftKey, altKey) => {
+  _handleKeyDownVim = (key, shiftKey, altKey, code) => {
     const actionKeys = {
       ArrowLeft: 'left',
       ArrowUp: 'up',
@@ -295,7 +295,7 @@ export default class GridControls extends Component {
       return true;
     }
     if (altKey) {
-      this.handleAltKey(key, shiftKey);
+      this.handleAltKey(code, shiftKey);
       return true;
     }
     if (!vimInsert && !vimCommand) {
@@ -324,7 +324,7 @@ export default class GridControls extends Component {
     } else if (vimInsert && !this.props.frozen) {
       const letter = key.toUpperCase();
       if (validLetter(letter)) {
-        this.typeLetter(letter, shiftKey);
+        this.typeLetter(letter, shiftKey, {nextClueIfFilled: this.props.autoAdvanceCursor});
         return true;
       }
     }
@@ -344,7 +344,9 @@ export default class GridControls extends Component {
     if (ev.target !== this.inputRef && (ev.tagName === 'INPUT' || ev.metaKey || ev.ctrlKey)) {
       return;
     }
-    if (keyDownHandler(ev.key, ev.shiftKey, ev.altKey)) {
+    // React 16 SyntheticEvent doesn't expose ev.code; read from nativeEvent
+    const code = ev.nativeEvent ? ev.nativeEvent.code : ev.code;
+    if (keyDownHandler(ev.key, ev.shiftKey, ev.altKey, code)) {
       ev.preventDefault();
       ev.stopPropagation();
     }

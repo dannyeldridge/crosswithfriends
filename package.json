@@ -2,6 +2,7 @@
   "name": "crosswithfriends",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://downforacross-com.onrender.com",
   "engines": {
     "node": "^18.0.0"
   },

@@ -366,9 +366,11 @@ export default class Player extends Component {
       onVimCommand,
       skipFilledSquares,
       onToggleSkipFilledSquares,
+      autoAdvanceCursor,
       grid,
       clues,
       circles,
+      shades,
       beta,
       cursors: allCursors = [],
       pings: allPings = [],
@@ -381,6 +383,7 @@ export default class Player extends Component {
       clueBarStyle = {},
       gridStyle = {},
       colorAttributionMode,
+      contest,
     } = this.props;
     const size = this.size;
     const {cellStyle = {}} = gridStyle;
@@ -416,6 +419,7 @@ export default class Player extends Component {
       size,
       grid: gridWithColors,
       circles,
+      shades,
       selected,
       references: this.getReferences(),
       direction,
@@ -456,6 +460,7 @@ export default class Player extends Component {
               onPressPeriod={onPressPeriod}
               skipFilledSquares={skipFilledSquares}
               onToggleSkipFilledSquares={onToggleSkipFilledSquares}
+              autoAdvanceCursor={autoAdvanceCursor}
               selected={selected}
               direction={direction}
               onSetDirection={this._setDirection}
@@ -488,6 +493,7 @@ export default class Player extends Component {
             onPressPeriod={onPressPeriod}
             skipFilledSquares={skipFilledSquares}
             onToggleSkipFilledSquares={onToggleSkipFilledSquares}
+            autoAdvanceCursor={autoAdvanceCursor}
             selected={selected}
             direction={direction}
             onSetDirection={this._setDirection}
@@ -532,6 +538,7 @@ export default class Player extends Component {
             onVimCommand={onVimCommand}
             skipFilledSquares={skipFilledSquares}
             onToggleSkipFilledSquares={onToggleSkipFilledSquares}
+            autoAdvanceCursor={autoAdvanceCursor}
             selected={selected}
             direction={direction}
             onSetDirection={this._setDirection}
@@ -569,6 +576,7 @@ export default class Player extends Component {
           onVimCommand={onVimCommand}
           skipFilledSquares={skipFilledSquares}
           onToggleSkipFilledSquares={onToggleSkipFilledSquares}
+          autoAdvanceCursor={autoAdvanceCursor}
           selected={selected}
           direction={direction}
           onSetDirection={this._setDirection}
@@ -580,6 +588,7 @@ export default class Player extends Component {
           beta={beta}
           onCheck={this.props.onCheck}
           onReveal={this.props.onReveal}
+          contest={contest}
         >
           <div className="player--main">
             <div className="player--main--left">

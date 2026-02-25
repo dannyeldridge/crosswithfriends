@@ -3,6 +3,7 @@ import _ from 'lodash';
 import {makeGrid} from '../gameUtils';
 import {pool} from './pool';
 import {getPuzzle} from './puzzle';
+import {getGameSnapshot} from './game_snapshot';
 
 export async function getGameEvents(gid: string) {
   const startTime = Date.now();
@@ -10,6 +11,23 @@ export async function getGameEvents(gid: string) {
   const events = _.map(res.rows, 'event_payload');
   const ms = Date.now() - startTime;
   console.log(`getGameEvents(${gid}) took ${ms}ms`);
+
+  // If a snapshot exists, overlay the solved state onto the create event.
+  // Snapshots are the authoritative final state for solved games.
+  const createEvent = events.find((e: any) => e.type === 'create');
+  if (createEvent) {
+    const snapshot = await getGameSnapshot(gid);
+    if (snapshot) {
+      const game = createEvent.params.game;
+      const snap = snapshot.snapshot as any;
+      if (snap.grid) game.grid = snap.grid;
+      if (snap.users) game.users = snap.users;
+      if (snap.clock) game.clock = snap.clock;
+      if (snap.chat) game.chat = snap.chat;
+      game.solved = true;
+    }
+  }
+
   return events;
 }
 
@@ -57,7 +75,7 @@ export async function addGameEvent(gid: string, event: GameEvent) {
 export async function addInitialGameEvent(gid: string, pid: string) {
   const puzzle = await getPuzzle(pid);
   console.log('got puzzle', puzzle);
-  const {info = {}, grid: solution = [['']], circles = []} = puzzle;
+  const {info = {}, grid: solution = [['']], circles = [], shades = [], contest = false} = puzzle;
 
   const gridObject = makeGrid(solution);
   const clues = gridObject.alignClues(puzzle.clues);
@@ -75,6 +93,8 @@ export async function addInitialGameEvent(gid: string, pid: string) {
         grid,
         solution,
         circles,
+        shades,
+        ...(contest ? {contest} : {}),
         chat: {messages: []},
         cursor: {},
         clock: {

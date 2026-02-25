@@ -38,7 +38,14 @@
   background-color: #dddddd;
 }
 
+.toolbar--mobile--top .action-menu--list {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
 .toolbar--mobile--top .action-menu--list--action {
   box-sizing: border-box;
-  height: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
 }

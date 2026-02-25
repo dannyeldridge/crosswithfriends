@@ -128,11 +128,64 @@ export type InProgressGameItem = {
   lastActivity: string;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function getInProgressGames(userId: string): Promise<InProgressGameItem[]> {
-  // Disabled: game_events table scans are too expensive without a game_participants table.
-  // TODO: re-enable once game_participants is implemented.
-  return [];
+  const startTime = Date.now();
+
+  // Look up the user's legacy dfac_id(s)
+  const idResult = await pool.query('SELECT dfac_id FROM user_identity_map WHERE user_id = $1', [userId]);
+  const dfacIds = idResult.rows.map((r: {dfac_id: string}) => r.dfac_id);
+
+  if (dfacIds.length === 0) {
+    const ms = Date.now() - startTime;
+    console.log(`getInProgressGames(${userId}) no dfac_ids, took ${ms}ms`);
+    return [];
+  }
+
+  // Find in-progress games:
+  // - UNION of uid-based and payload-based lookups (each uses its own index)
+  // - Exclude solved games via NOT EXISTS on game_snapshots (PK lookup)
+  // - Join create event for pid, join puzzles for title and size
+  const result = await pool.query(
+    `WITH user_games AS (
+       SELECT gid, MAX(ts) AS last_activity
+       FROM (
+         SELECT gid, ts FROM game_events WHERE uid = ANY($1)
+         UNION ALL
+         SELECT gid, ts FROM game_events WHERE (event_payload->'params'->>'id') = ANY($1)
+       ) all_events
+       WHERE NOT EXISTS (
+         SELECT 1 FROM game_snapshots gs WHERE gs.gid = all_events.gid
+       )
+       GROUP BY gid
+       ORDER BY last_activity DESC
+       LIMIT 20
+     )
+     SELECT
+       ug.gid,
+       ce.event_payload->'params'->>'pid' AS pid,
+       p.content->'info'->>'title' AS title,
+       GREATEST(jsonb_array_length(p.content->'grid'), jsonb_array_length(p.content->'grid'->0))::text
+         || 'x' ||
+       LEAST(jsonb_array_length(p.content->'grid'), jsonb_array_length(p.content->'grid'->0))::text
+         AS size,
+       ug.last_activity
+     FROM user_games ug
+     JOIN game_events ce ON ce.gid = ug.gid AND ce.event_type = 'create'
+     JOIN puzzles p ON p.pid = (ce.event_payload->'params'->>'pid')
+     ORDER BY ug.last_activity DESC`,
+    [dfacIds]
+  );
+
+  const ms = Date.now() - startTime;
+  console.log(`getInProgressGames(${userId}) found ${result.rows.length} games in ${ms}ms`);
+
+  return result.rows.map((r: any) => ({
+    gid: r.gid,
+    pid: r.pid,
+    title: r.title || 'Untitled',
+    size: r.size,
+    lastActivity: r.last_activity ? r.last_activity.toISOString() : '',
+  }));
 }
 
 export async function backfillSolvesForDfacId(userId: string, dfacId: string): Promise<number> {

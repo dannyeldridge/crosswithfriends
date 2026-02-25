@@ -27,8 +27,9 @@ function assignTimestamp(event: SocketEvent) {
 }
 
 // Event types that are broadcast to connected clients but NOT persisted to the database.
-// These are only meaningful in real-time and not needed for game resume or replay.
-const EPHEMERAL_EVENT_TYPES = new Set(['updateCursor', 'addPing', 'updateDisplayName', 'updateColor']);
+// updateCursor and addPing are high-frequency and only meaningful in real-time.
+// updateDisplayName and updateColor are persisted so players remain visible on reload.
+const EPHEMERAL_EVENT_TYPES = new Set(['updateCursor', 'addPing']);
 
 // ============== Socket Manager ==============
 
