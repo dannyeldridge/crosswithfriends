@@ -148,6 +148,91 @@ describe('GridControls.delete', () => {
   });
 });
 
+// Grid layout (3x3, black at 1,1):
+//   (0,0) (0,1) (0,2)   ← 1-Across (3 cells)
+//   (1,0)   .   (1,2)
+//   (2,0) (2,1) (2,2)
+describe('GridControls.goToNextEmptyCell — auto-advance', () => {
+  it('auto-advances when filling the last empty cell mid-word', () => {
+    // Row 0: A _ C — cursor on empty middle cell (0,1), the only gap
+    const {instance} = makeControlsInstance(GridControls, {
+      grid: makeGrid({'0,0': {value: 'A'}, '0,2': {value: 'C'}}),
+      selected: {r: 0, c: 1},
+      direction: 'across',
+      autoAdvanceCursor: true,
+    });
+    const spy = jest.spyOn(instance, 'selectNextClue').mockImplementation(() => {});
+    instance.goToNextEmptyCell({nextClueIfFilled: true});
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('does NOT auto-advance when overwriting a letter in an already-complete word', () => {
+    // Row 0: A B C — all filled, cursor on last cell (0,2)
+    const {instance} = makeControlsInstance(GridControls, {
+      grid: makeGrid({'0,0': {value: 'A'}, '0,1': {value: 'B'}, '0,2': {value: 'C'}}),
+      selected: {r: 0, c: 2},
+      direction: 'across',
+      autoAdvanceCursor: true,
+    });
+    const spy = jest.spyOn(instance, 'selectNextClue').mockImplementation(() => {});
+    instance.goToNextEmptyCell({nextClueIfFilled: true});
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('auto-advances when filling the last empty cell at end of word', () => {
+    // Row 0: A B _ — cursor on empty last cell (0,2)
+    const {instance} = makeControlsInstance(GridControls, {
+      grid: makeGrid({'0,0': {value: 'A'}, '0,1': {value: 'B'}}),
+      selected: {r: 0, c: 2},
+      direction: 'across',
+      autoAdvanceCursor: true,
+    });
+    const spy = jest.spyOn(instance, 'selectNextClue').mockImplementation(() => {});
+    instance.goToNextEmptyCell({nextClueIfFilled: true});
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('does not auto-advance when other empty cells remain', () => {
+    // Row 0: _ _ C — cursor at (0,0), still an empty cell at (0,1)
+    const {instance, props} = makeControlsInstance(GridControls, {
+      grid: makeGrid({'0,2': {value: 'C'}}),
+      selected: {r: 0, c: 0},
+      direction: 'across',
+      autoAdvanceCursor: true,
+    });
+    const spy = jest.spyOn(instance, 'selectNextClue').mockImplementation(() => {});
+    instance.goToNextEmptyCell({nextClueIfFilled: true});
+    expect(spy).not.toHaveBeenCalled();
+    expect(props.onSetSelected).toHaveBeenCalledWith({r: 0, c: 1});
+  });
+
+  it('does not auto-advance when overwriting a mid-word letter in a complete word', () => {
+    // Row 0: A B C — all filled, cursor on middle cell (0,1)
+    const {instance} = makeControlsInstance(GridControls, {
+      grid: makeGrid({'0,0': {value: 'A'}, '0,1': {value: 'B'}, '0,2': {value: 'C'}}),
+      selected: {r: 0, c: 1},
+      direction: 'across',
+      autoAdvanceCursor: true,
+    });
+    const spy = jest.spyOn(instance, 'selectNextClue').mockImplementation(() => {});
+    instance.goToNextEmptyCell({nextClueIfFilled: true});
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('does not auto-advance when nextClueIfFilled is false', () => {
+    // Row 0: A _ C — last empty cell, but auto-advance disabled
+    const {instance} = makeControlsInstance(GridControls, {
+      grid: makeGrid({'0,0': {value: 'A'}, '0,2': {value: 'C'}}),
+      selected: {r: 0, c: 1},
+      direction: 'across',
+      autoAdvanceCursor: false,
+    });
+    const spy = jest.spyOn(instance, 'selectNextClue').mockImplementation(() => {});
+    instance.goToNextEmptyCell({nextClueIfFilled: false});
+    expect(spy).not.toHaveBeenCalled();
+  });
+});
+
 describe('GridControls.backspace', () => {
   it('deletes current cell if filled', () => {
     const {instance, props} = makeControlsInstance(GridControls, {

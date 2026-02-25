@@ -363,13 +363,29 @@ export default class GridControls extends Component {
       this.setSelected(nextEmptyCell);
       return nextEmptyCell;
     }
+
+    // No more empty cells found. Auto-advance only when the word transitions
+    // from incomplete to complete, i.e. the current cell was the last empty cell.
+    // Do NOT advance when overwriting a letter in an already-complete word.
+    if (nextClueIfFilled) {
+      // When skipFilledSquares is off, the search above doesn't look for empties,
+      // so do a proper empty-cell check with skipFilledSquares forced on.
+      const noOtherEmptyCells =
+        skipFilledSquares ||
+        !this.grid.getNextEmptyCell(r, c, this.props.direction, {
+          skipFirst: true,
+          skipFilledSquares: true,
+        });
+      if (noOtherEmptyCells && !this.grid.isFilled(r, c)) {
+        this.selectNextClue();
+        return undefined;
+      }
+    }
+
     const nextCell = this.grid.getNextCell(r, c, this.props.direction);
     if (nextCell) {
       this.setSelected(nextCell);
       return nextCell;
-    }
-    if (nextClueIfFilled) {
-      this.selectNextClue();
     }
     return undefined;
   }
