@@ -5,10 +5,14 @@
     "esModuleInterop": true,
     "allowJs": true,
     "skipLibCheck": true,
+    "types": ["vite/client", "jest", "node"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "paths": {
       "@shared/*": ["../src/shared/*"],
       "@lib/*": ["../src/lib/*"]
     }
   },
-  "include": [".", "../src/lib", "../src/shared"]
+  "include": [".", "../src/lib", "../src/shared"],
+  "exclude": ["../src/**/__tests__/**"]
 }
