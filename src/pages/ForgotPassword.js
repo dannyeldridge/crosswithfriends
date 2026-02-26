@@ -2,10 +2,6 @@
 import React, {useState} from 'react';
 import {Helmet} from 'react-helmet';
 import {Link} from 'react-router-dom';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Typography from '@material-ui/core/Typography';
 import Nav from '../components/common/Nav';
 import Footer from '../components/common/Footer';
 import {forgotPassword} from '../api/auth';
@@ -38,36 +34,37 @@ export default function ForgotPassword() {
       <div className="account--main" style={{paddingTop: 20}}>
         {status === 'sent' ? (
           <div style={{textAlign: 'center'}}>
-            <Typography style={{marginBottom: 16}}>
+            <p style={{marginBottom: 16}}>
               If an account exists with that email, we&apos;ve sent a password reset link.
-            </Typography>
-            <Typography color="textSecondary" style={{marginBottom: 24}}>
+            </p>
+            <p className="text-secondary" style={{marginBottom: 24}}>
               Check your inbox and follow the link to reset your password. If you don&apos;t see it, check
               your spam or junk folder. The link expires in 1 hour.
-            </Typography>
+            </p>
             <Link to="/" style={{color: 'inherit'}}>
               Back to home
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{maxWidth: 400, margin: '0 auto'}}>
-            <Typography style={{marginBottom: 16}}>
+            <p style={{marginBottom: 16}}>
               Enter the email address associated with your account and we&apos;ll send you a link to reset
               your password.
-            </Typography>
-            <TextField
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              fullWidth
-              margin="dense"
-              required
-            />
+            </p>
+            <div className="form-field">
+              <label htmlFor="forgot-email">Email</label>
+              <input
+                id="forgot-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
             {status === 'error' && (
-              <Typography color="error" variant="caption" style={{display: 'block', marginTop: 8}}>
+              <span className="text-error text-caption" style={{display: 'block', marginTop: 8}}>
                 {error}
-              </Typography>
+              </span>
             )}
             <div
               style={{marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}
@@ -75,9 +72,13 @@ export default function ForgotPassword() {
               <Link to="/" style={{color: 'inherit', fontSize: 14}}>
                 Back to login
               </Link>
-              <Button type="submit" variant="contained" color="primary" disabled={status === 'sending'}>
-                {status === 'sending' ? <CircularProgress size={20} /> : 'Send Reset Link'}
-              </Button>
+              <button
+                type="submit"
+                className="btn btn--contained btn--primary"
+                disabled={status === 'sending'}
+              >
+                {status === 'sending' ? <span className="spinner spinner--small" /> : 'Send Reset Link'}
+              </button>
             </div>
           </form>
         )}

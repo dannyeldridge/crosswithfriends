@@ -7,18 +7,9 @@ import Flex from 'react-flexview';
 import {Helmet} from 'react-helmet';
 import Nav from '../components/common/Nav';
 import {formatMilliseconds} from '../components/Toolbar/Clock';
-import {makeStyles} from '@material-ui/core';
-
-const useStyles = makeStyles({
-  header: {
-    textAlign: 'center',
-  },
-});
 
 const Stats: React.FC<{}> = () => {
   const user = getUser();
-  const classes = useStyles();
-
   const [stats, setStats] = useState<ListPuzzleStatsResponse | null>(null);
 
   useEffect(() => {
@@ -42,7 +33,7 @@ const Stats: React.FC<{}> = () => {
       </Helmet>
 
       <div>
-        <h2 className={classes.header}>Stats</h2>
+        <h2 style={{textAlign: 'center'}}>Stats</h2>
         <table className="main-table">
           <tbody>
             <tr>
@@ -82,7 +73,7 @@ const Stats: React.FC<{}> = () => {
         </table>
       </div>
       <div>
-        <h2 className={classes.header}>{`History (${stats?.history?.length || 0} total puzzles)`}</h2>
+        <h2 style={{textAlign: 'center'}}>{`History (${stats?.history?.length || 0} total puzzles)`}</h2>
         <table className="main-table">
           <tbody>
             <tr>

@@ -2,7 +2,7 @@
  * Tests for dark mode body class syncing.
  *
  * The Root component in index.js syncs the `.dark` class to document.body
- * via useEffect so that MUI portals (Dialog, Menu, etc.) which render
+ * via useEffect so that Radix portals (Dialog, etc.) which render
  * outside the React tree still receive dark mode styling.
  */
 
@@ -42,15 +42,15 @@ describe('dark mode body class syncing', () => {
   });
 
   it('dark class allows .dark selectors to match portal elements', () => {
-    // Simulate what MUI Dialog portals do — append directly to body
+    // Simulate what Radix Dialog portals do — append directly to body
     document.body.classList.toggle('dark', true);
     const portalDiv = document.createElement('div');
-    portalDiv.className = 'MuiDialog-root';
+    portalDiv.className = 'login-modal--panel';
     document.body.appendChild(portalDiv);
 
-    // CSS selector `.dark .MuiDialog-root` would match because
-    // body.dark > div.MuiDialog-root
-    const matched = document.querySelectorAll('.dark .MuiDialog-root');
+    // CSS selector `.dark .login-modal--panel` would match because
+    // body.dark > div.login-modal--panel
+    const matched = document.querySelectorAll('.dark .login-modal--panel');
     expect(matched.length).toBe(1);
 
     document.body.removeChild(portalDiv);
@@ -59,10 +59,10 @@ describe('dark mode body class syncing', () => {
   it('portal elements do NOT match when dark class is missing', () => {
     document.body.classList.toggle('dark', false);
     const portalDiv = document.createElement('div');
-    portalDiv.className = 'MuiDialog-root';
+    portalDiv.className = 'login-modal--panel';
     document.body.appendChild(portalDiv);
 
-    const matched = document.querySelectorAll('.dark .MuiDialog-root');
+    const matched = document.querySelectorAll('.dark .login-modal--panel');
     expect(matched.length).toBe(0);
 
     document.body.removeChild(portalDiv);

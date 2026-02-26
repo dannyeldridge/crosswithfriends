@@ -1,0 +1,231 @@
+/* Shared CSS primitives — replaces @material-ui/core components */
+
+/* ===== Spinner (replaces CircularProgress) ===== */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #1976d2;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner--small {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.dark .spinner {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-top-color: #6aa9f4;
+}
+
+/* ===== Buttons (replaces MUI Button) ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.75;
+  letter-spacing: 0.02857em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.87);
+  transition: background-color 0.15s;
+  min-width: 64px;
+}
+
+.btn:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.btn--small {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.btn--contained {
+  background-color: #e0e0e0;
+  color: rgba(0, 0, 0, 0.87);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.btn--contained:hover {
+  background-color: #d5d5d5;
+}
+
+.btn--contained.btn--primary {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.btn--contained.btn--primary:hover {
+  background-color: #1565c0;
+}
+
+.btn--contained.btn--primary:disabled {
+  background-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.26);
+}
+
+.btn--outlined {
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  background: transparent;
+}
+
+.btn--outlined:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.btn--danger {
+  color: #d32f2f;
+}
+
+.btn--contained.btn--danger {
+  background-color: #d32f2f;
+  color: #fff;
+}
+
+.btn--contained.btn--danger:hover {
+  background-color: #b71c1c;
+}
+
+/* Dark mode buttons */
+.dark .btn {
+  color: var(--dark-primary-text);
+}
+
+.dark .btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .btn--contained.btn--primary {
+  color: #fff;
+}
+
+.dark .btn--contained.btn--primary:disabled {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.dark .btn--outlined {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== Form fields (replaces MUI TextField) ===== */
+.form-field {
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.form-field label {
+  display: block;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  margin-bottom: 4px;
+}
+
+.form-field input {
+  width: 100%;
+  padding: 6px 0;
+  font-size: 16px;
+  font-family: inherit;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+  outline: none;
+  background: transparent;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.form-field input:focus {
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: 5px;
+}
+
+.form-field--helper {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  margin-top: 3px;
+}
+
+.form-field--small input {
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+/* Dark mode form fields */
+.dark .form-field label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dark .form-field input {
+  color: var(--dark-primary-text);
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark .form-field input:focus {
+  border-bottom-color: #6aa9f4;
+}
+
+.dark .form-field--helper {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ===== Typography utilities (replaces MUI Typography) ===== */
+.text-error {
+  color: #f44336;
+}
+
+.text-secondary {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.text-success {
+  color: #4caf50;
+}
+
+.text-caption {
+  font-size: 0.75rem;
+}
+
+.text-body2 {
+  font-size: 0.875rem;
+}
+
+.text-h6 {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.dark .text-error {
+  color: #ef5350;
+}
+
+.dark .text-secondary {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dark .text-success {
+  color: #66bb6a;
+}

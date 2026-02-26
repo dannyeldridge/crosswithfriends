@@ -1,37 +1,8 @@
-import {makeStyles} from '@material-ui/core';
 import _ from 'lodash';
 import React, {useCallback} from 'react';
 import {GameState} from '../../shared/fencingGameEvents/types/GameState';
 import EditableSpan from '../common/EditableSpan';
 import './css/fencingScoreboard.css';
-
-const useStyles = makeStyles({
-  fencingScoreboardContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    // alignItems: 'center',
-    '& td, th': {
-      padding: 8,
-    },
-  },
-  teamName: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    '& > *': {
-      marginLeft: 4,
-    },
-  },
-  userName: {
-    marginLeft: 20,
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  winIndicator: {
-    marginLeft: 8,
-    color: '#4CAF50',
-    fontWeight: 'bold',
-  },
-});
 export const FencingScoreboard: React.FC<{
   gameState: GameState;
   currentUserId: string;
@@ -41,7 +12,6 @@ export const FencingScoreboard: React.FC<{
   changeTeamName(newName: string): void;
   isGameComplete: boolean;
 }> = (props) => {
-  const classes = useStyles();
   const handleSpectate = useCallback(() => {
     props.spectate();
   }, [props]);
@@ -78,7 +48,7 @@ export const FencingScoreboard: React.FC<{
   }[] = _.flatMap(teamData, ({team, users}) => [
     {
       nameEl: (
-        <span className={classes.teamName}>
+        <span className="fencing-scoreboard--team-name">
           {currentUser?.teamId === team.id ? (
             <EditableSpan
               style={{
@@ -105,7 +75,9 @@ export const FencingScoreboard: React.FC<{
             </button>
           )}
           {props.isGameComplete && winningTeams?.some((winner) => winner?.id === team.id) && (
-            <span className={classes.winIndicator}>{winningTeams.length > 1 ? '🤝 Tie!' : '🏆 Winner!'}</span>
+            <span className="fencing-scoreboard--win-indicator">
+              {winningTeams.length > 1 ? '🤝 Tie!' : '🏆 Winner!'}
+            </span>
           )}
         </span>
       ),
@@ -114,7 +86,7 @@ export const FencingScoreboard: React.FC<{
     },
     ...users.map((user) => ({
       nameEl: (
-        <span className={classes.userName}>
+        <span className="fencing-scoreboard--user-name">
           {user.id === props.currentUserId ? (
             <EditableSpan value={user.displayName} onChange={props.changeName} />
           ) : (
@@ -153,7 +125,7 @@ export const FencingScoreboard: React.FC<{
         })),
       ];
   return (
-    <div className={classes.fencingScoreboardContainer}>
+    <div className="fencing-scoreboard--container">
       <table>
         <tbody>
           <tr>

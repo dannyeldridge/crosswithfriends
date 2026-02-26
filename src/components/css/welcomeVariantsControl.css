@@ -1,0 +1,35 @@
+.welcome-variants {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px !important;
+  font-size: 13px;
+}
+
+.welcome-variants a {
+  text-decoration: none;
+}
+
+.welcome-variants--title {
+  font-size: 110%;
+  font-weight: 600;
+}
+
+.dark .welcome-variants--title {
+  color: var(--dark-primary-text);
+}
+
+.welcome-variants--option {
+  color: #666;
+}
+
+.welcome-variants--option.selected {
+  color: #1976d2;
+}
+
+.dark .welcome-variants--option {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dark .welcome-variants--option.selected {
+  color: #6aa9f4;
+}

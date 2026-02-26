@@ -2,9 +2,6 @@
 import React, {useContext, useState, useEffect, useRef} from 'react';
 import {Helmet} from 'react-helmet';
 import {useLocation, useNavigate, Link} from 'react-router-dom';
-import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Typography from '@material-ui/core/Typography';
 import Nav from '../components/common/Nav';
 import Footer from '../components/common/Footer';
 import AuthContext from '../lib/AuthContext';
@@ -73,33 +70,31 @@ export default function VerifyEmail() {
         <div className="account--main" style={{textAlign: 'center', paddingTop: 40}}>
           {status === 'verifying' && (
             <>
-              <CircularProgress style={{marginBottom: 16}} />
-              <Typography>Verifying your email...</Typography>
+              <span className="spinner" style={{marginBottom: 16}} />
+              <p>Verifying your email...</p>
             </>
           )}
           {status === 'success' && (
             <>
-              <Typography variant="h6" style={{color: '#4caf50', marginBottom: 16}}>
+              <h6 className="text-h6" style={{color: '#4caf50', marginBottom: 16}}>
                 Email verified!
-              </Typography>
-              <Typography style={{marginBottom: 24}}>Your email has been verified successfully.</Typography>
-              <Button variant="contained" color="primary" onClick={() => navigate('/')}>
+              </h6>
+              <p style={{marginBottom: 24}}>Your email has been verified successfully.</p>
+              <button className="btn btn--contained btn--primary" onClick={() => navigate('/')}>
                 Go to Home
-              </Button>
+              </button>
             </>
           )}
           {status === 'error' && (
             <>
-              <Typography variant="h6" style={{color: '#d32f2f', marginBottom: 16}}>
+              <h6 className="text-h6" style={{color: '#d32f2f', marginBottom: 16}}>
                 Verification failed
-              </Typography>
-              <Typography style={{marginBottom: 24}}>
-                {error || 'The link may be expired or invalid.'}
-              </Typography>
+              </h6>
+              <p style={{marginBottom: 24}}>{error || 'The link may be expired or invalid.'}</p>
               {user && !user.emailVerified && (
-                <Button variant="contained" color="primary" onClick={() => navigate('/verify-email')}>
+                <button className="btn btn--contained btn--primary" onClick={() => navigate('/verify-email')}>
                   Request a new link
-                </Button>
+                </button>
               )}
             </>
           )}
@@ -118,43 +113,40 @@ export default function VerifyEmail() {
       <Nav />
       <div className="account--title">Verify Your Email</div>
       <div className="account--main" style={{textAlign: 'center', paddingTop: 20}}>
-        <Typography style={{marginBottom: 8}}>
+        <p style={{marginBottom: 8}}>
           We sent a verification email to <strong>{user?.email || 'your email address'}</strong>.
-        </Typography>
-        <Typography style={{marginBottom: 24}} color="textSecondary">
+        </p>
+        <p className="text-secondary" style={{marginBottom: 24}}>
           Check your inbox and click the link to verify your account. If you don&apos;t see it, check your
           spam or junk folder.
-        </Typography>
+        </p>
 
-        <Button
-          variant="contained"
-          color="primary"
+        <button
+          className="btn btn--contained btn--primary"
           onClick={handleResend}
           disabled={resendStatus === 'sending' || cooldown > 0}
           style={{marginBottom: 16}}
         >
           {resendStatus === 'sending' ? (
-            <CircularProgress size={20} />
+            <span className="spinner spinner--small" />
           ) : cooldown > 0 ? (
             `Resend in ${cooldown}s`
           ) : (
             'Resend Verification Email'
           )}
-        </Button>
+        </button>
 
         {resendStatus === 'sent' && (
-          <Typography style={{color: '#4caf50', marginBottom: 8}}>Verification email sent!</Typography>
+          <p style={{color: '#4caf50', marginBottom: 8}}>Verification email sent!</p>
         )}
-        {resendStatus === 'error' && (
-          <Typography style={{color: '#d32f2f', marginBottom: 8}}>{resendError}</Typography>
-        )}
+        {resendStatus === 'error' && <p style={{color: '#d32f2f', marginBottom: 8}}>{resendError}</p>}
 
-        <Typography variant="body2" color="textSecondary" style={{marginTop: 16}}>
+        <p className="text-body2 text-secondary" style={{marginTop: 16}}>
           Wrong email?{' '}
           <Link to="/account" style={{color: 'inherit'}}>
             Change it in account settings
           </Link>
-        </Typography>
+        </p>
       </div>
       <Footer />
     </div>

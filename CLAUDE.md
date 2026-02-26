@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Development
+
 ```sh
 yarn start                              # Frontend dev server (port 3020, proxies API to production backend)
 yarn devfrontend                        # Frontend pointing at local backend (port 3021)
@@ -12,6 +13,7 @@ yarn devbackend                         # Backend dev server (port 3021, watches
 ```
 
 ### Testing
+
 ```sh
 yarn test                               # Frontend tests (Vitest, single run)
 yarn test:watch                         # Frontend tests in watch mode
@@ -21,6 +23,7 @@ yarn test:server -- --testPathPattern=path  # Run a single server test file
 ```
 
 ### E2E Tests (Playwright)
+
 ```sh
 yarn test:e2e                           # All browsers against production
 yarn test:e2e:chromium                  # Quick single-browser run
@@ -30,9 +33,11 @@ yarn test:e2e:headed                    # Debug with visible browsers
 yarn test:e2e:ui                        # Playwright UI mode
 npx playwright install                  # First-time: install browser binaries
 ```
+
 E2E tests live in `e2e/` with two layers. **Smoke tests**: page rendering, navigation, puzzle list, dark mode, game page loading. **Gameplay tests**: grid interactions (cell selection, letter entry, arrow keys, direction toggle, Tab/Backspace), toolbar actions (Check, Reveal, Reset, Pencil mode), and clue panel interactions. Configurable via `BASE_URL` env var (defaults to `https://crosswithfriends.com`). When `BASE_URL` points to localhost, Playwright auto-starts the dev server via `yarn start` (or reuses one already running). Shared fixtures in `e2e/fixtures/` (`base.ts` for smoke, `game.ts` for gameplay).
 
 ### Quality Checks
+
 ```sh
 npx eslint . --ext .js,.jsx,.ts,.tsx    # Lint (CI enforces --max-warnings 0)
 npx prettier --check .                  # Format check
@@ -44,7 +49,9 @@ yarn preview                            # Serve production build locally
 ```
 
 ### Full CI Equivalent
+
 All of these must pass before merging to master:
+
 1. ESLint (zero warnings)
 2. Prettier
 3. Frontend tests
@@ -69,7 +76,7 @@ All of these must pass before merging to master:
 
 - **CSS**: BEM-style class names. Dark mode via `.dark` class on body with selectors like `.dark .component`. Centralized dark mode styles in `src/dark.css`, with some component CSS files having their own dark sections.
 - **Dark mode variables**: `--dark-background` (#121212), `--dark-background-1` (rgba 0.05), `--dark-background-2` (rgba 0.12), `--dark-primary-text` (rgba 0.87), `--dark-blue-1`, `--dark-blue-2`.
-- **Styling**: Material UI v4 (`@material-ui/core`), `react-icons` for icons. Prettier: 110 char width, single quotes, no bracket spacing.
+- **Styling**: Plain CSS + Radix UI primitives (`@radix-ui/react-dialog`, `@radix-ui/react-tabs`) for accessible Dialog/Tabs. Shared CSS primitives in `src/components/common/css/primitives.css`. `react-icons` for icons. Prettier: 110 char width, single quotes, no bracket spacing.
 - **ESLint**: airbnb-typescript base. Many a11y rules are warnings (not errors) due to legacy code. `--max-warnings 0` in CI means new warnings fail the build.
 - **Pre-commit hook**: lint-staged runs ESLint + Prettier on staged files automatically.
 

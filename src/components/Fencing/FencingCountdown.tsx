@@ -1,8 +1,8 @@
-import {CircularProgress, makeStyles} from '@material-ui/core';
 import React, {useEffect, useState} from 'react';
 import {GameState} from '../../shared/fencingGameEvents/types/GameState';
 import {GameEventsHook} from './useGameEvents';
 import {PlayerActions} from './usePlayerActions';
+import './css/fencingCountdown.css';
 
 export const FencingCountdown: React.FC<{
   playerActions: PlayerActions;
@@ -11,7 +11,6 @@ export const FencingCountdown: React.FC<{
   children?: React.ReactNode;
 }> = (props) => {
   const [renderCount, setRenderCount] = useState(0);
-  const classes = useStyles();
   const serverTime = props.gameEventsHook.getServerTime();
   const GAME_START_DELAY_MS = 1000 * 5;
   const notLoaded = !props.gameState.loaded;
@@ -30,23 +29,23 @@ export const FencingCountdown: React.FC<{
 
   if (notLoaded) {
     return (
-      <div className={classes.countdown}>
-        <CircularProgress />
+      <div className="fencing-countdown">
+        <span className="spinner" />
       </div>
     );
   }
   if (notStarted) {
     return (
-      <div className={classes.countdown}>
+      <div className="fencing-countdown">
         <button onClick={props.playerActions.startGame}>Start Game (wait for everyone to join!)</button>
       </div>
     );
   }
   if (countingDown) {
     return (
-      <div className={classes.countdown}>
+      <div className="fencing-countdown">
         Starting In
-        <div className={classes.timer}>
+        <div className="fencing-countdown--timer">
           {((props.gameState.startedAt! - serverTime + GAME_START_DELAY_MS) / 1000).toFixed(2)}
         </div>
       </div>
@@ -54,19 +53,3 @@ export const FencingCountdown: React.FC<{
   }
   return <>{props.children}</>;
 };
-
-const useStyles = makeStyles({
-  countdown: {
-    display: 'flex',
-    position: 'relative',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    margin: 'auto',
-    flexDirection: 'column',
-    alignItems: 'center',
-    fontSize: '300%',
-  },
-  timer: {
-    fontSize: '150%',
-  },
-});

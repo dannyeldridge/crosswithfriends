@@ -1,7 +1,5 @@
 import React, {useEffect, useContext, useState} from 'react';
 import {Link, useNavigate, useLocation} from 'react-router-dom';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Typography from '@material-ui/core/Typography';
 import AuthContext from '../../lib/AuthContext';
 import {getMe} from '../../api/auth';
 
@@ -46,9 +44,9 @@ export default function GoogleCallback() {
   if (error) {
     return (
       <div style={{textAlign: 'center', marginTop: 100}}>
-        <Typography color="error" style={{marginBottom: 16}}>
+        <p className="text-error" style={{marginBottom: 16}}>
           {error}
-        </Typography>
+        </p>
         <Link to="/">Go back to home</Link>
       </div>
     );
@@ -56,8 +54,8 @@ export default function GoogleCallback() {
 
   return (
     <div style={{textAlign: 'center', marginTop: 100}}>
-      <CircularProgress />
-      <Typography style={{marginTop: 16}}>Signing you in...</Typography>
+      <span className="spinner" />
+      <p style={{marginTop: 16}}>Signing you in...</p>
     </div>
   );
 }

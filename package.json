@@ -6,7 +6,8 @@
     "node": "^18.0.0"
   },
   "dependencies": {
-    "@material-ui/core": "^4.9.14",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@sendgrid/mail": "^8.1.6",
     "@sweetalert/with-react": "^0.1.1",
     "@types/lodash": "^4.14.150",

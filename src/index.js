@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import {createRoot} from 'react-dom/client';
 import React from 'react';
 
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useMediaQuery from './lib/hooks/useMediaQuery';
 import {BrowserRouter as Router, Route, Routes, Navigate, useLocation} from 'react-router-dom';
 import {isMobile} from './lib/jsUtils';
 import {
@@ -30,6 +30,7 @@ import GoogleCallback from './components/Auth/GoogleCallback';
 
 import './style.css';
 import './dark.css';
+import './components/common/css/primitives.css';
 
 const darkModeLocalStorageKey = 'dark_mode_preference';
 

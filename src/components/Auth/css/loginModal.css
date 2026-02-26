@@ -1,0 +1,99 @@
+/* LoginModal — Radix Dialog + Tabs styling */
+
+/* Dialog overlay */
+.login-modal--overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1300;
+}
+
+/* Dialog content panel */
+.login-modal--panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 444px;
+  max-height: 85vh;
+  overflow-y: auto;
+  z-index: 1300;
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14),
+    0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+}
+
+.dark .login-modal--panel {
+  background-color: #1e1e1e;
+  color: var(--dark-primary-text);
+}
+
+/* Tabs */
+.login-modal--tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.dark .login-modal--tabs {
+  border-bottom-color: #444;
+}
+
+.login-modal--tab {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02857em;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(0, 0, 0, 0.54);
+  cursor: pointer;
+  text-align: center;
+}
+
+.login-modal--tab:hover {
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.login-modal--tab[data-state='active'] {
+  color: #1976d2;
+  border-bottom-color: #1976d2;
+}
+
+.dark .login-modal--tab {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dark .login-modal--tab:hover {
+  color: var(--dark-primary-text);
+}
+
+.dark .login-modal--tab[data-state='active'] {
+  color: var(--dark-primary-text);
+  border-bottom-color: #6aa9f4;
+}
+
+/* Dialog body */
+.login-modal--body {
+  padding: 20px 24px 8px;
+}
+
+/* Dialog actions row */
+.login-modal--actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+/* Forgot password link */
+.login-modal--forgot {
+  text-align: right;
+  margin-top: 4px;
+  cursor: pointer;
+}

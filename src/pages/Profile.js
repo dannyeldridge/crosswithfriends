@@ -3,7 +3,7 @@ import './css/profile.css';
 import React, {useContext, useState, useEffect} from 'react';
 import {Helmet} from 'react-helmet';
 import {useParams, useNavigate, Link} from 'react-router-dom';
-import CircularProgress from '@material-ui/core/CircularProgress';
+
 import {MdPeople} from 'react-icons/md';
 import {FaPlay} from 'react-icons/fa';
 import Nav from '../components/common/Nav';
@@ -283,7 +283,7 @@ export default function Profile() {
       <div className="profile--main">
         {loading && (
           <div className="profile--loading">
-            <CircularProgress />
+            <span className="spinner" />
           </div>
         )}
 
