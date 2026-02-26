@@ -83,69 +83,9 @@
   color: var(--dark-primary-text);
 }
 
-.dark .account-section--content .MuiTypography-colorTextSecondary {
-  color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.dark .account-section--content .MuiButton-root {
-  color: var(--dark-primary-text);
-}
-
-.dark .account-section--content .MuiButton-containedPrimary {
-  color: #fff;
-}
-
-.dark .account-section--content .MuiInputBase-root {
-  color: var(--dark-primary-text);
-}
-
-.dark .account-section--content .MuiInput-underline::before {
-  border-bottom-color: rgba(255, 255, 255, 0.3);
-}
-
-.dark .account-section--content .MuiInputLabel-root {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.dark .account-section--content .MuiFormHelperText-root {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.dark .account-section--content .MuiButton-outlined {
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
 /* Dark mode for standalone account pages (verify-email, forgot-password, reset-password) */
 .dark .account--main {
   color: var(--dark-primary-text);
-}
-
-.dark .account--main .MuiTypography-root {
-  color: var(--dark-primary-text);
-}
-
-.dark .account--main .MuiTypography-colorTextSecondary {
-  color: rgba(255, 255, 255, 0.5) !important;
-}
-
-.dark .account--main .MuiTypography-colorError {
-  color: #ef5350 !important;
-}
-
-.dark .account--main .MuiInputBase-root {
-  color: var(--dark-primary-text);
-}
-
-.dark .account--main .MuiInput-underline::before {
-  border-bottom-color: rgba(255, 255, 255, 0.3);
-}
-
-.dark .account--main .MuiInputLabel-root {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.dark .account--main .MuiFormHelperText-root {
-  color: rgba(255, 255, 255, 0.4);
 }
 
 .dark .account-verify-banner {
@@ -155,11 +95,6 @@
 
 .dark .account-verify-banner a {
   color: #ffb74d;
-}
-
-.dark .account--main .MuiButton-contained.Mui-disabled {
-  background-color: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.3);
 }
 
 .dark .account--main a {

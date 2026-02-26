@@ -4,55 +4,14 @@ import _ from 'lodash';
 import {Helmet} from 'react-helmet';
 import {useParams} from 'react-router-dom';
 
-import {makeStyles} from '@material-ui/core';
 import type {Socket} from 'socket.io-client';
 import {RoomEvent, SetGameRoomEvent, UserPingRoomEvent} from '../shared/roomEvents';
 import {useSocket} from '../sockets/useSocket';
 import {initialRoomState, roomReducer} from '../lib/reducers/room';
 import {emitAsync} from '../sockets/emitAsync';
+import './css/room.css';
 
 const ACTIVE_SECONDS_TIMEOUT = 60;
-
-const useStyles = makeStyles({
-  container: {
-    display: 'flex',
-    height: '100%',
-    flexDirection: 'column',
-  },
-  content: {
-    flex: 1,
-    display: 'flex',
-    '& iframe': {
-      border: 'none',
-      width: '100%',
-      height: '100%',
-    },
-  },
-  totalUsersParen: {
-    color: '#DDDDDD',
-  },
-  footer: {
-    padding: 12,
-    display: 'flex',
-    justifyContent: 'space-between',
-    background: 'var(--main-blue)',
-    color: '#FBFBFB',
-    '& button': {
-      border: 'none',
-      background: 'none',
-      outline: '1px solid',
-      color: '#FBFBFB',
-      cursor: 'pointer',
-    },
-  },
-  noGameMessage: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 function subscribeToRoomEvents(
   socket: Socket | undefined,
   rid: string,
@@ -139,28 +98,27 @@ const Room: React.FC = () => {
     }
   }, [setGame]);
   const currentTime = useTimer();
-  const classes = useStyles();
   const currentGame = _.first(roomState.games);
   return (
-    <div className={classes.container}>
+    <div className="room--container">
       <Helmet title={`Room ${rid}`} />
-      <div className={classes.content}>
+      <div className="room--content">
         {currentGame && <iframe title="game" src={`/game/${currentGame.gid}`} />}
         {!currentGame && (
-          <div className={classes.noGameMessage}>
+          <div className="room--no-game-message">
             <div>No game selected!</div>
             <div> Click the button on the bottom-right to enter a game link</div>
           </div>
         )}
       </div>
-      <div className={classes.footer}>
+      <div className="room--footer">
         <div>
           In this room:{' '}
           {
             _.filter(roomState.users, (user) => user.lastPing > currentTime - ACTIVE_SECONDS_TIMEOUT * 1000)
               .length
           }{' '}
-          <span className={classes.totalUsersParen}>({roomState.users.length} total)</span>
+          <span className="room--total-users-paren">({roomState.users.length} total)</span>
         </div>
         <div>
           <button type="button" onClick={handleAddGame}>

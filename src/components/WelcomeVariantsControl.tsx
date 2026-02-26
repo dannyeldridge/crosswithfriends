@@ -1,14 +1,13 @@
-import {makeStyles} from '@material-ui/core';
 import React, {useCallback} from 'react';
 import {Link} from 'react-router-dom';
 import clsx from 'clsx';
+import './css/welcomeVariantsControl.css';
 // @ts-ignore
 import swal from '@sweetalert/with-react';
 
 export const WelcomeVariantsControl: React.FC<{
   fencing?: boolean;
 }> = (props) => {
-  const classes = useStyles();
   const showFencingInfo = useCallback(() => {
     swal({
       title: 'crosswithfriends.com/fencing',
@@ -44,11 +43,11 @@ export const WelcomeVariantsControl: React.FC<{
     [showFencingInfo]
   );
   return (
-    <div className={classes.container}>
-      <span className={classes.title}>Variants</span>
+    <div className="welcome-variants">
+      <span className="welcome-variants--title">Variants</span>
       <Link to="/">
         <span
-          className={clsx(classes.option, {
+          className={clsx('welcome-variants--option', {
             selected: !props.fencing,
           })}
         >
@@ -58,7 +57,7 @@ export const WelcomeVariantsControl: React.FC<{
       <span>
         <Link to="/fencing">
           <span
-            className={clsx(classes.option, {
+            className={clsx('welcome-variants--option', {
               selected: !!props.fencing,
             })}
           >
@@ -78,34 +77,3 @@ export const WelcomeVariantsControl: React.FC<{
     </div>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '8px 20px !important',
-    fontSize: '13px',
-    '& a': {
-      textDecoration: 'none',
-    },
-  },
-  title: {
-    fontSize: '110%',
-    fontWeight: 600,
-    '.dark &': {
-      color: 'var(--dark-primary-text)',
-    },
-  },
-  option: {
-    color: '#666',
-    '&.selected': {
-      color: '#1976d2',
-    },
-    '.dark &': {
-      color: 'rgba(255, 255, 255, 0.5)',
-    },
-    '.dark &.selected': {
-      color: '#6aa9f4',
-    },
-  },
-});

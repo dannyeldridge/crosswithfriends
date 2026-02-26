@@ -1,0 +1,16 @@
+.fencing--container {
+  flex: 1;
+  display: flex;
+  padding: 24px;
+  flex-direction: column;
+}
+
+.fencing--scoreboard-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 12px;
+}
+
+.fencing--scoreboard-container * {
+  border-collapse: collapse;
+}

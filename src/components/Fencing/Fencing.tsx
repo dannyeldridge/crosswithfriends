@@ -4,7 +4,6 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {useUpdateEffect} from 'react-use';
 import {Helmet} from 'react-helmet';
 import Flex from 'react-flexview';
-import {makeStyles} from '@material-ui/core';
 import type {Socket} from 'socket.io-client';
 import {useSocket} from '../../sockets/useSocket';
 import {emitAsync} from '../../sockets/emitAsync';
@@ -48,23 +47,7 @@ function subscribeToGameEvents(socket: Socket | undefined, gid: string, eventsHo
 
   return {syncPromise, unsubscribe};
 }
-const useStyles = makeStyles({
-  container: {
-    flex: 1,
-    display: 'flex',
-    // height: '100%',
-    padding: 24,
-    flexDirection: 'column',
-  },
-  scoreboardContainer: {
-    display: 'flex',
-    justifyContent: 'space-around',
-    marginBottom: 12,
-    '& *': {
-      borderCollapse: 'collapse',
-    },
-  },
-});
+import './css/fencing.css';
 /**
  * This component is parallel to Game -- will render a <Player/>
  * Will implement custom competitive crossword logic (see PR #145)
@@ -155,7 +138,6 @@ export const Fencing: React.FC<{gid: string}> = (props) => {
     }
   }, [isInitialized]);
 
-  const classes = useStyles();
   console.log('Game State:', gameState);
 
   const toolbarActions = useToolbarActions(sendEvent, gameState, id);
@@ -246,7 +228,7 @@ export const Fencing: React.FC<{gid: string}> = (props) => {
     <Flex column style={{flex: 1}}>
       <Nav hidden={false} divRef={null} linkStyle={null} mobile={null} />
       <Flex style={{flex: 1, overflow: 'auto'}}>
-        <div className={classes.container}>
+        <div className="fencing--container">
           <Helmet title={`Fencing ${gid}`} />
           <div style={{flex: 1}}>
             <FencingCountdown playerActions={playerActions} gameState={gameState} gameEventsHook={eventsHook}>
@@ -274,7 +256,7 @@ export const Fencing: React.FC<{gid: string}> = (props) => {
           {gameState.game && (
             <Chat
               isFencing
-              subheader={<div className={classes.scoreboardContainer}>{fencingScoreboard}</div>}
+              subheader={<div className="fencing--scoreboard-container">{fencingScoreboard}</div>}
               info={gameState.game.info}
               teams={gameState.teams}
               path={`/fencing/${gid}`}

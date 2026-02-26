@@ -1,0 +1,44 @@
+.room--container {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+.room--content {
+  flex: 1;
+  display: flex;
+}
+
+.room--content iframe {
+  border: none;
+  width: 100%;
+  height: 100%;
+}
+
+.room--total-users-paren {
+  color: #dddddd;
+}
+
+.room--footer {
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  background: var(--main-blue);
+  color: #fbfbfb;
+}
+
+.room--footer button {
+  border: none;
+  background: none;
+  outline: 1px solid;
+  color: #fbfbfb;
+  cursor: pointer;
+}
+
+.room--no-game-message {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

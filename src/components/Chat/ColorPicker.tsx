@@ -1,20 +1,11 @@
 import React, {useCallback} from 'react';
 import {useToggle} from 'react-use';
 import {CirclePicker} from 'react-color';
-import {makeStyles} from '@material-ui/core';
-
 interface ColorPickerProps {
   color: string;
   onUpdateColor: (color: string) => void;
 }
-const useStyles = makeStyles<any, ColorPickerProps>({
-  clickableDot: {
-    color: (props) => props.color,
-    cursor: 'pointer',
-  },
-});
 const ColorPicker: React.FC<ColorPickerProps> = (props) => {
-  const classes = useStyles(props);
   const [isActive, toggleIsActive] = useToggle(false);
   const handleToggle = useCallback(() => {
     toggleIsActive();
@@ -46,7 +37,7 @@ const ColorPicker: React.FC<ColorPickerProps> = (props) => {
         onKeyDown={handleKeyDown}
         role="button"
         tabIndex={0}
-        className={classes.clickableDot}
+        style={{color: props.color, cursor: 'pointer'}}
       >
         {' '}
         {'\u25CF '}

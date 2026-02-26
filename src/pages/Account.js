@@ -4,9 +4,6 @@ import './css/account.css';
 import React, {useContext, useState, useEffect} from 'react';
 import {Helmet} from 'react-helmet';
 import {useLocation, useNavigate, Link} from 'react-router-dom';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import Nav from '../components/common/Nav';
 import Footer from '../components/common/Footer';
 import AuthContext from '../lib/AuthContext';
@@ -56,40 +53,37 @@ function DisplayNameSection({user, accessToken, onSaved}) {
     return (
       <AccountSection title="Display Name">
         <span>{user.displayName}</span>
-        <Button
-          size="small"
+        <button
+          className="btn btn--small"
           onClick={() => {
             setValue(user.displayName || '');
             setEditing(true);
           }}
         >
           Edit
-        </Button>
+        </button>
       </AccountSection>
     );
   }
 
   return (
     <AccountSection title="Display Name">
-      <TextField
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        size="small"
-        fullWidth
-        margin="dense"
-      />
-      {error && (
-        <Typography color="error" variant="caption">
-          {error}
-        </Typography>
-      )}
+      <div className="form-field form-field--small">
+        <input
+          id="account-display-name"
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+      </div>
+      {error && <span className="text-error text-caption">{error}</span>}
       <div className="account-section--actions">
-        <Button size="small" onClick={() => setEditing(false)}>
+        <button className="btn btn--small" onClick={() => setEditing(false)}>
           Cancel
-        </Button>
-        <Button size="small" color="primary" variant="contained" onClick={handleSave} disabled={saving}>
+        </button>
+        <button className="btn btn--small btn--contained btn--primary" onClick={handleSave} disabled={saving}>
           Save
-        </Button>
+        </button>
       </div>
     </AccountSection>
   );
@@ -115,20 +109,16 @@ function ProfileVisibilitySection({user, accessToken, onSaved}) {
 
   return (
     <AccountSection title="Profile Visibility">
-      <Typography variant="body2">
+      <p className="text-body2">
         Your profile is currently <strong>{isPublic ? 'Public' : 'Private'}</strong>.
         {isPublic
           ? ' Other users can see your stats and solve history.'
           : ' Only you can see your stats and solve history.'}
-      </Typography>
-      <Button size="small" variant="outlined" onClick={handleToggle} disabled={saving}>
+      </p>
+      <button className="btn btn--small btn--outlined" onClick={handleToggle} disabled={saving}>
         {isPublic ? 'Make Private' : 'Make Public'}
-      </Button>
-      {error && (
-        <Typography color="error" variant="caption">
-          {error}
-        </Typography>
-      )}
+      </button>
+      {error && <span className="text-error text-caption">{error}</span>}
     </AccountSection>
   );
 }
@@ -163,19 +153,17 @@ function EmailSection({user, accessToken}) {
       <AccountSection title="Email">
         <span>{user.email}</span>
         {user.hasPassword && (
-          <Button size="small" onClick={() => setEditing(true)}>
+          <button className="btn btn--small" onClick={() => setEditing(true)}>
             Change
-          </Button>
+          </button>
         )}
         {!user.hasPassword && (
-          <Typography variant="caption" color="textSecondary">
-            Set a password to change email
-          </Typography>
+          <span className="text-caption text-secondary">Set a password to change email</span>
         )}
         {success && (
-          <Typography style={{color: '#4caf50', width: '100%'}} variant="caption">
+          <span className="text-caption" style={{color: '#4caf50', width: '100%'}}>
             {success}
-          </Typography>
+          </span>
         )}
       </AccountSection>
     );
@@ -183,42 +171,38 @@ function EmailSection({user, accessToken}) {
 
   return (
     <AccountSection title="Email">
-      <TextField
-        label="New Email"
-        type="email"
-        value={newEmail}
-        onChange={(e) => setNewEmail(e.target.value)}
-        size="small"
-        fullWidth
-        margin="dense"
-      />
-      <TextField
-        label="Confirm Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        size="small"
-        fullWidth
-        margin="dense"
-      />
-      {error && (
-        <Typography color="error" variant="caption">
-          {error}
-        </Typography>
-      )}
+      <div className="form-field form-field--small">
+        <label htmlFor="account-new-email">New Email</label>
+        <input
+          id="account-new-email"
+          type="email"
+          value={newEmail}
+          onChange={(e) => setNewEmail(e.target.value)}
+        />
+      </div>
+      <div className="form-field form-field--small">
+        <label htmlFor="account-confirm-pw">Confirm Password</label>
+        <input
+          id="account-confirm-pw"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+      {error && <span className="text-error text-caption">{error}</span>}
       <div className="account-section--actions">
-        <Button
-          size="small"
+        <button
+          className="btn btn--small"
           onClick={() => {
             setEditing(false);
             setError('');
           }}
         >
           Cancel
-        </Button>
-        <Button size="small" color="primary" variant="contained" onClick={handleSave} disabled={saving}>
+        </button>
+        <button className="btn btn--small btn--contained btn--primary" onClick={handleSave} disabled={saving}>
           Save
-        </Button>
+        </button>
       </div>
     </AccountSection>
   );
@@ -271,22 +255,20 @@ function PasswordSection({user, accessToken, onSaved}) {
     return (
       <AccountSection title="Password">
         {success && (
-          <Typography style={{color: '#4caf50'}} variant="caption">
+          <span className="text-caption" style={{color: '#4caf50'}}>
             {success}
-          </Typography>
+          </span>
         )}
         {user.hasPassword ? (
-          <Button size="small" onClick={() => setMode('change')}>
+          <button className="btn btn--small" onClick={() => setMode('change')}>
             Change Password
-          </Button>
+          </button>
         ) : (
           <>
-            <Typography variant="body2" color="textSecondary">
-              No password set
-            </Typography>
-            <Button size="small" onClick={() => setMode('set')}>
+            <p className="text-body2 text-secondary">No password set</p>
+            <button className="btn btn--small" onClick={() => setMode('set')}>
               Set Password
-            </Button>
+            </button>
           </>
         )}
       </AccountSection>
@@ -296,34 +278,30 @@ function PasswordSection({user, accessToken, onSaved}) {
   return (
     <AccountSection title="Password">
       {mode === 'change' && (
-        <TextField
-          label="Current Password"
+        <div className="form-field form-field--small">
+          <label htmlFor="account-current-pw">Current Password</label>
+          <input
+            id="account-current-pw"
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
+        </div>
+      )}
+      <div className="form-field form-field--small">
+        <label htmlFor="account-new-pw">{mode === 'change' ? 'New Password' : 'Password'}</label>
+        <input
+          id="account-new-pw"
           type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          size="small"
-          fullWidth
-          margin="dense"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
         />
-      )}
-      <TextField
-        label={mode === 'change' ? 'New Password' : 'Password'}
-        type="password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        size="small"
-        fullWidth
-        margin="dense"
-        helperText="At least 8 characters"
-      />
-      {error && (
-        <Typography color="error" variant="caption">
-          {error}
-        </Typography>
-      )}
+        <div className="form-field--helper">At least 8 characters</div>
+      </div>
+      {error && <span className="text-error text-caption">{error}</span>}
       <div className="account-section--actions">
-        <Button
-          size="small"
+        <button
+          className="btn btn--small"
           onClick={() => {
             setMode(null);
             setError('');
@@ -332,16 +310,14 @@ function PasswordSection({user, accessToken, onSaved}) {
           }}
         >
           Cancel
-        </Button>
-        <Button
-          size="small"
-          color="primary"
-          variant="contained"
+        </button>
+        <button
+          className="btn btn--small btn--contained btn--primary"
           onClick={mode === 'change' ? handleChange : handleSet}
           disabled={saving}
         >
           {mode === 'change' ? 'Change Password' : 'Set Password'}
-        </Button>
+        </button>
       </div>
     </AccountSection>
   );
@@ -370,30 +346,27 @@ function GoogleSection({user, accessToken, onSaved}) {
     <AccountSection title="Google Account">
       {user.hasGoogle ? (
         <>
-          <Typography variant="body2">Google account linked</Typography>
+          <p className="text-body2">Google account linked</p>
           {user.hasPassword ? (
-            <Button size="small" onClick={handleUnlink} disabled={saving}>
+            <button className="btn btn--small" onClick={handleUnlink} disabled={saving}>
               Unlink
-            </Button>
+            </button>
           ) : (
-            <Typography variant="caption" color="textSecondary">
-              Set a password before unlinking Google
-            </Typography>
+            <span className="text-caption text-secondary">Set a password before unlinking Google</span>
           )}
         </>
       ) : (
         <>
-          <Button
-            size="small"
-            variant="outlined"
+          <button
+            className="btn btn--small btn--outlined"
             onClick={() => {
               window.location.href = getLinkGoogleUrl(accessToken);
             }}
           >
             Link Google Account
-          </Button>
+          </button>
           {unlinked && (
-            <Typography variant="caption" color="textSecondary" style={{width: '100%'}}>
+            <span className="text-caption text-secondary" style={{width: '100%'}}>
               To also revoke access, visit your{' '}
               <a
                 href="https://myaccount.google.com/permissions"
@@ -404,15 +377,11 @@ function GoogleSection({user, accessToken, onSaved}) {
                 Google Account settings
               </a>
               .
-            </Typography>
+            </span>
           )}
         </>
       )}
-      {error && (
-        <Typography color="error" variant="caption">
-          {error}
-        </Typography>
-      )}
+      {error && <span className="text-error text-caption">{error}</span>}
     </AccountSection>
   );
 }
@@ -452,41 +421,37 @@ function DeleteAccountSection({user, accessToken, onDeleted}) {
   if (!confirming) {
     return (
       <AccountSection title="Delete Account">
-        <Button size="small" style={{color: '#d32f2f'}} onClick={handleConfirm}>
+        <button className="btn btn--small btn--danger" onClick={handleConfirm}>
           Delete Account
-        </Button>
+        </button>
       </AccountSection>
     );
   }
 
   return (
     <AccountSection title="Delete Account">
-      <Typography variant="body2" style={{color: '#d32f2f', width: '100%'}}>
+      <p className="text-body2" style={{color: '#d32f2f', width: '100%'}}>
         This action is permanent. Your account data
         {solveCount != null && solveCount > 0
           ? `, including ${solveCount} solved puzzle${solveCount === 1 ? '' : 's'},`
           : ''}{' '}
         will be deleted.
-      </Typography>
+      </p>
       {user.hasPassword && (
-        <TextField
-          label="Confirm Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          size="small"
-          fullWidth
-          margin="dense"
-        />
+        <div className="form-field form-field--small">
+          <label htmlFor="account-delete-pw">Confirm Password</label>
+          <input
+            id="account-delete-pw"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
       )}
-      {error && (
-        <Typography color="error" variant="caption">
-          {error}
-        </Typography>
-      )}
+      {error && <span className="text-error text-caption">{error}</span>}
       <div className="account-section--actions">
-        <Button
-          size="small"
+        <button
+          className="btn btn--small"
           onClick={() => {
             setConfirming(false);
             setError('');
@@ -494,16 +459,14 @@ function DeleteAccountSection({user, accessToken, onDeleted}) {
           }}
         >
           Cancel
-        </Button>
-        <Button
-          size="small"
-          variant="contained"
-          style={{backgroundColor: '#d32f2f', color: '#fff'}}
+        </button>
+        <button
+          className="btn btn--small btn--contained btn--danger"
           onClick={handleDelete}
           disabled={saving}
         >
           Delete My Account
-        </Button>
+        </button>
       </div>
     </AccountSection>
   );
@@ -538,7 +501,7 @@ export default function Account() {
       <div className="account--title">Your Account</div>
       <div className="account--main">
         {flash && (
-          <Typography
+          <p
             style={{
               marginBottom: 16,
               padding: '8px 12px',
@@ -548,7 +511,7 @@ export default function Account() {
             }}
           >
             {flash.text}
-          </Typography>
+          </p>
         )}
 
         {isAuthenticated && !user?.emailVerified && (

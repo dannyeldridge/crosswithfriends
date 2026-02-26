@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import clsx from 'clsx';
-import Tooltip from '@material-ui/core/Tooltip';
 import Emoji from '../common/Emoji';
 import powerups from '../../lib/powerups';
 // eslint-disable-next-line import/no-cycle
@@ -255,53 +254,52 @@ export default class Cell extends React.Component<Props> {
     const style = this.getStyle();
 
     return (
-      <Tooltip title={displayNames}>
-        <div
-          className={clsx('cell', {
-            selected,
-            highlighted,
-            referenced,
-            shaded,
-            bad,
-            good,
-            revealed,
-            pencil,
-            frozen,
-          })}
-          style={style}
-          role="button"
-          tabIndex={0}
-          onClick={this.handleClick}
-          onKeyDown={this.handleKeyDown}
-          onContextMenu={this.handleRightClick}
-        >
-          <div className="cell--wrapper">
-            <div
-              className={clsx('cell--number', {
-                nonempty: !!number,
-              })}
-            >
-              {number}
-            </div>
-            {this.renderFlipButton()}
-            {this.renderCircle()}
-            {this.renderShade()}
-            {this.renderPickup()}
-            {this.renderSolvedBy()}
-            <div
-              className="cell--value"
-              style={{
-                fontSize: `${350 / Math.sqrt(l)}%`,
-                lineHeight: `${Math.sqrt(l) * 98}%`,
-              }}
-            >
-              {val}
-            </div>
+      <div
+        title={displayNames}
+        className={clsx('cell', {
+          selected,
+          highlighted,
+          referenced,
+          shaded,
+          bad,
+          good,
+          revealed,
+          pencil,
+          frozen,
+        })}
+        style={style}
+        role="button"
+        tabIndex={0}
+        onClick={this.handleClick}
+        onKeyDown={this.handleKeyDown}
+        onContextMenu={this.handleRightClick}
+      >
+        <div className="cell--wrapper">
+          <div
+            className={clsx('cell--number', {
+              nonempty: !!number,
+            })}
+          >
+            {number}
           </div>
-          {this.renderCursors()}
-          {this.renderPings()}
+          {this.renderFlipButton()}
+          {this.renderCircle()}
+          {this.renderShade()}
+          {this.renderPickup()}
+          {this.renderSolvedBy()}
+          <div
+            className="cell--value"
+            style={{
+              fontSize: `${350 / Math.sqrt(l)}%`,
+              lineHeight: `${Math.sqrt(l) * 98}%`,
+            }}
+          >
+            {val}
+          </div>
         </div>
-      </Tooltip>
+        {this.renderCursors()}
+        {this.renderPings()}
+      </div>
     );
   }
 }
