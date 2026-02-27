@@ -65,9 +65,9 @@ test.describe('Toolbar actions', () => {
     await openActionMenu('Reveal');
     await clickAction('Square');
 
-    // SweetAlert confirmation dialog appears — confirm it
-    await expect(page.locator('.swal-overlay')).toBeVisible({timeout: 5_000});
-    await page.locator('.swal-button--confirm').click();
+    // Radix ConfirmDialog appears — confirm it
+    await expect(page.locator('.confirm-dialog--overlay')).toBeVisible({timeout: 5_000});
+    await page.locator('.btn--danger').click();
 
     // Wait for reveal to propagate — cell gets .revealed or .good class
     const cellDiv = gamePage.cellLocator(r, c).locator('.cell');
@@ -191,23 +191,17 @@ test.describe('Toolbar actions', () => {
     await openActionMenu('Reset');
     await clickAction('Puzzle');
 
-    // SweetAlert dialog should appear
-    await expect(page.locator('.swal-overlay')).toBeVisible({timeout: 5_000});
-    await expect(page.locator('.swal-title')).toContainText('reset');
+    // Radix ConfirmDialog should appear
+    await expect(page.locator('.confirm-dialog--overlay')).toBeVisible({timeout: 5_000});
+    await expect(page.locator('.confirm-dialog--title')).toContainText('reset');
 
     // Cancel to avoid actually resetting
-    const cancelBtn = page.locator('.swal-button--cancel');
-    if (await cancelBtn.isVisible()) {
-      await cancelBtn.click();
-    } else {
-      // Some swal versions use different button structure — press Escape
-      await page.keyboard.press('Escape');
-    }
+    await page.locator('.btn--outlined').click();
 
     await page.waitForTimeout(300);
 
     // Dialog should be gone
-    await expect(page.locator('.swal-overlay--show-modal')).not.toBeVisible();
+    await expect(page.locator('.confirm-dialog--overlay')).not.toBeVisible();
 
     assertNoFatalErrors(consoleErrors);
   });
