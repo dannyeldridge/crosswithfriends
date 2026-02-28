@@ -105,11 +105,15 @@ export default function LoginModal({open, onClose}) {
     [handleForgotPassword]
   );
 
+  const handleInteractOutside = useCallback((e) => {
+    e.preventDefault();
+  }, []);
+
   return (
     <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="login-modal--overlay" />
-        <DialogPrimitive.Content className="login-modal--panel">
+        <DialogPrimitive.Content className="login-modal--panel" onInteractOutside={handleInteractOutside}>
           <TabsPrimitive.Root value={tab} onValueChange={handleTabChange}>
             <TabsPrimitive.List className="login-modal--tabs">
               <TabsPrimitive.Trigger value="login" className="login-modal--tab">
