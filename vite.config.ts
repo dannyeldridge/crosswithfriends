@@ -1,6 +1,7 @@
 import {defineConfig, transformWithEsbuild} from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import {VitePWA} from 'vite-plugin-pwa';
 
 export default defineConfig({
   plugins: [
@@ -19,6 +20,29 @@ export default defineConfig({
     },
     react({
       include: /\.(jsx|js|tsx|ts)$/,
+    }),
+    VitePWA({
+      injectRegister: false,
+      registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true,
+      },
+      pwaAssets: {
+        image: 'public/cwf_logo_square.svg',
+        preset: 'minimal-2023',
+        overrideManifestIcons: true,
+        includeHtmlHeadLinks: true,
+        injectThemeColor: true,
+      },
+      manifest: {
+        name: 'Cross with Friends',
+        short_name: 'CWF',
+        description: 'Solve crossword puzzles together with friends in real time.',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '.',
+      },
     }),
   ],
   resolve: {
