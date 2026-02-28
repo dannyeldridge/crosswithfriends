@@ -364,6 +364,25 @@ describe('addPuzzle', () => {
     const invalidPuzzle = {grid: 'not-an-array'};
     await expect(addPuzzle(invalidPuzzle as any)).rejects.toThrow();
   });
+
+  it('accepts puzzle with data URI images', async () => {
+    pool.query.mockResolvedValue({rows: []});
+    const puzzleWithImages = {
+      ...validPuzzle,
+      images: {0: 'data:image/png;base64,abc123'},
+    };
+    await expect(addPuzzle(puzzleWithImages as any, false, 'img-pid')).resolves.not.toThrow();
+  });
+
+  it('rejects puzzle with external URL images', async () => {
+    const puzzleWithBadImages = {
+      ...validPuzzle,
+      images: {0: 'https://evil.com/track.png'},
+    };
+    await expect(addPuzzle(puzzleWithBadImages as any, false, 'bad-pid')).rejects.toThrow(
+      'Image values must be data: URIs'
+    );
+  });
 });
 
 describe('recordSolve', () => {

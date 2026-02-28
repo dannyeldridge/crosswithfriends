@@ -191,7 +191,14 @@ const puzzleValidator = Joi.object({
   }),
   circles: Joi.array().optional(),
   shades: Joi.array().optional(),
-  images: Joi.object().pattern(Joi.number(), Joi.string()).optional(),
+  images: Joi.object()
+    .pattern(
+      Joi.number(),
+      Joi.string()
+        .pattern(/^data:image\//)
+        .message('Image values must be data: URIs')
+    )
+    .optional(),
   clues: Joi.object({
     across: Joi.array(),
     down: Joi.array(),

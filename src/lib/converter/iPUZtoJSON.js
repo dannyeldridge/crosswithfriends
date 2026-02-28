@@ -53,7 +53,11 @@ export default function iPUZtoJSON(readerResult) {
         if (cell.style.color || cell.style.highlight) {
           shades.push(flatIdx);
         }
-        if (cell.style.imagebg) {
+        if (
+          cell.style.imagebg &&
+          typeof cell.style.imagebg === 'string' &&
+          cell.style.imagebg.startsWith('data:')
+        ) {
           images[flatIdx] = cell.style.imagebg;
         }
       }

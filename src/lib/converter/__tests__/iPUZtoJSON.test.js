@@ -219,6 +219,21 @@ describe('iPUZtoJSON', () => {
       expect(result.grid[0][1]).toBe('');
     });
 
+    it('rejects non-data-URI imagebg values', () => {
+      const ipuz = makeMinimalIPUZ({
+        puzzle: [
+          [{cell: 1}, {cell: 2, style: {imagebg: 'https://evil.com/track.png'}}],
+          [{cell: 3}, '#'],
+        ],
+        solution: [
+          ['A', ' '],
+          ['C', null],
+        ],
+      });
+      const result = iPUZtoJSON(makeBuffer(ipuz));
+      expect(result.images).toBeUndefined();
+    });
+
     it('omits images when no imagebg cells exist', () => {
       const result = iPUZtoJSON(makeBuffer(makeMinimalIPUZ()));
       expect(result.images).toBeUndefined();
