@@ -236,11 +236,13 @@
 .flex {
   display: flex;
   min-width: 0;
+  min-height: 0;
 }
 
 .flex--column {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: 0;
 }
 
