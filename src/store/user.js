@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import firebase, {db, getTime} from './firebase';
 import getLocalId from '../localAuth';
-import {rand_color} from '../lib/jsUtils';
+import {pickDistinctColor} from '../lib/colorAssignment';
 
 const disableFbLogin = true;
 
@@ -10,7 +10,7 @@ export default class User extends EventEmitter {
     super();
     this.auth = firebase.auth();
     this.attached = false;
-    this.color = rand_color();
+    this.color = pickDistinctColor([]);
   }
 
   attach() {

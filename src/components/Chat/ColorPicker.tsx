@@ -1,26 +1,6 @@
 import React, {useCallback} from 'react';
 import {useToggle} from 'react-use';
-
-const SWATCH_COLORS = [
-  'hsl(4,90%,58%)',
-  'hsl(340,82%,52%)',
-  'hsl(291,47%,51%)',
-  'hsl(262,52%,47%)',
-  'hsl(231,48%,48%)',
-  'hsl(207,90%,54%)',
-  'hsl(199,98%,48%)',
-  'hsl(187,100%,42%)',
-  'hsl(174,100%,29%)',
-  'hsl(122,39%,49%)',
-  'hsl(88,50%,53%)',
-  'hsl(66,70%,54%)',
-  'hsl(54,100%,62%)',
-  'hsl(45,100%,51%)',
-  'hsl(36,100%,50%)',
-  'hsl(14,100%,57%)',
-  'hsl(16,25%,38%)',
-  'hsl(200,18%,46%)',
-];
+import {PALETTE_COLORS} from '../../lib/colorAssignment';
 
 interface ColorPickerProps {
   color: string;
@@ -64,7 +44,7 @@ const ColorPicker: React.FC<ColorPickerProps> = (props) => {
       {isActive ? (
         <>
           <div style={{display: 'flex', flexWrap: 'wrap', gap: 6, padding: '8px 0'}}>
-            {SWATCH_COLORS.map((c) => (
+            {PALETTE_COLORS.map((c) => (
               <button
                 key={c}
                 type="button"
