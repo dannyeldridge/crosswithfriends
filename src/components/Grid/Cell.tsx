@@ -22,7 +22,7 @@ export interface EnhancedCellData extends CellData {
   highlighted: boolean;
   frozen: boolean;
   circled: boolean;
-  shaded: boolean;
+  shaded: string | boolean;
   image?: string;
   referenced: boolean;
   canFlipColor: boolean;
@@ -150,7 +150,8 @@ export default class Cell extends React.Component<Props> {
   renderShade() {
     const {shaded} = this.props;
     if (shaded) {
-      return <div className="cell--shade" />;
+      const style = typeof shaded === 'string' ? {backgroundColor: shaded} : undefined;
+      return <div className="cell--shade" style={style} />;
     }
     return null;
   }
@@ -235,6 +236,10 @@ export default class Cell extends React.Component<Props> {
       frozen,
     } = this.props;
     if (black || isHidden) {
+      const blackStyle: React.CSSProperties = {
+        ...(selected ? {borderColor: myColor} : {}),
+        ...(black && typeof shaded === 'string' ? {backgroundColor: shaded} : {}),
+      };
       return (
         <div
           className={clsx('cell', {
@@ -242,7 +247,7 @@ export default class Cell extends React.Component<Props> {
             black,
             hidden: isHidden,
           })}
-          style={selected ? {borderColor: myColor} : undefined}
+          style={blackStyle}
           role="button"
           tabIndex={0}
           onClick={this.handleClick}
@@ -298,7 +303,7 @@ export default class Cell extends React.Component<Props> {
           {this.renderImage()}
           {this.renderPickup()}
           {this.renderSolvedBy()}
-          {!this.props.image && (
+          {!this.props.isImage && (
             <div
               className="cell--value"
               style={{

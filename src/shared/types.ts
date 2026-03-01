@@ -36,6 +36,8 @@ export type GridData = CellData[][];
 
 export type CellIndex = Brand<number, 'CellIndex'>;
 export const toCellIndex = (r: number, c: number, cols: number) => (r * cols + c) as CellIndex;
+export type ColoredShade = {index: CellIndex; color: string};
+export type ShadeEntry = CellIndex | ColoredShade;
 
 export interface GameJson {
   info: InfoJson;
@@ -51,7 +53,7 @@ export interface GameJson {
   solution: string[][];
   clues: CluesJson;
   circles?: CellIndex[];
-  shades?: CellIndex[];
+  shades?: ShadeEntry[];
   images?: Record<number, string>;
   contest?: boolean;
 }
@@ -85,7 +87,7 @@ export interface PuzzleJson {
   solution: string[][];
   info: InfoJson;
   circles: string[];
-  shades: string[];
+  shades: (string | {index: string; color: string})[];
   images?: Record<number, string>;
   clues: CluesJson;
   private?: boolean;

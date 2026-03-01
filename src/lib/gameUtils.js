@@ -48,7 +48,7 @@ export const makeGrid = (textGrid, fillWithSol, images) => {
         edits: [],
         value: fillWithSol ? cell : '',
         number: null,
-        ...(images && images[flatIdx] ? {isImage: true} : {}),
+        ...(images && images[flatIdx] && cell === '' ? {isImage: true} : {}),
       };
     })
   );
