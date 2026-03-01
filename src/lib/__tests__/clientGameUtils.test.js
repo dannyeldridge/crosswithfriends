@@ -88,6 +88,22 @@ describe('makeGrid', () => {
     expect(grid.grid[1][0].isImage).toBeUndefined();
   });
 
+  it('does not set isImage on letter cells with background images', () => {
+    const textGrid = [
+      ['A', 'B', 'C'],
+      ['D', '', '.'],
+    ];
+    const images = {
+      0: 'data:image/png;base64,bg',
+      1: 'data:image/png;base64,bg',
+      4: 'data:image/png;base64,bg',
+    };
+    const grid = makeGrid(textGrid, false, images);
+    expect(grid.grid[0][0].isImage).toBeUndefined(); // letter cell — typeable
+    expect(grid.grid[0][1].isImage).toBeUndefined(); // letter cell — typeable
+    expect(grid.grid[1][1].isImage).toBe(true); // decorative cell — non-typeable
+  });
+
   it('does not set isImage when images is empty', () => {
     const textGrid = [
       ['A', 'B'],

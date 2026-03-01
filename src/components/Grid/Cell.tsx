@@ -155,14 +155,6 @@ export default class Cell extends React.Component<Props> {
     return null;
   }
 
-  renderImage() {
-    const {image} = this.props;
-    if (image) {
-      return <img src={image} alt="" className="cell--image--bg" draggable={false} />;
-    }
-    return null;
-  }
-
   renderPickup() {
     const {pickupType} = this.props;
     if (pickupType) {
@@ -186,18 +178,21 @@ export default class Cell extends React.Component<Props> {
     return <div style={divStyle} />;
   }
 
-  getStyle() {
-    const {attributionColor, cellStyle, selected, highlighted, frozen} = this.props;
+  getStyle(): React.CSSProperties {
+    const {attributionColor, cellStyle, selected, highlighted, frozen, image} = this.props;
+    const imageStyle: React.CSSProperties = image
+      ? {backgroundImage: `url(${image})`, backgroundSize: 'cover'}
+      : {};
     if (selected) {
-      return cellStyle.selected;
+      return {...imageStyle, ...cellStyle.selected};
     }
     if (highlighted) {
       if (frozen) {
-        return cellStyle.frozen;
+        return {...imageStyle, ...cellStyle.frozen};
       }
-      return cellStyle.highlighted;
+      return {...imageStyle, ...cellStyle.highlighted};
     }
-    return {backgroundColor: attributionColor};
+    return {...imageStyle, backgroundColor: attributionColor};
   }
 
   handleClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
@@ -235,6 +230,11 @@ export default class Cell extends React.Component<Props> {
       frozen,
     } = this.props;
     if (black || isHidden) {
+      const blackImage = black && this.props.image;
+      const blackStyle: React.CSSProperties = {
+        ...(selected ? {borderColor: myColor} : {}),
+        ...(blackImage ? {backgroundImage: `url(${blackImage})`, backgroundSize: 'cover'} : {}),
+      };
       return (
         <div
           className={clsx('cell', {
@@ -242,14 +242,13 @@ export default class Cell extends React.Component<Props> {
             black,
             hidden: isHidden,
           })}
-          style={selected ? {borderColor: myColor} : undefined}
+          style={blackStyle}
           role="button"
           tabIndex={0}
           onClick={this.handleClick}
           onKeyDown={this.handleKeyDown}
           onContextMenu={this.handleRightClick}
         >
-          {black && this.renderImage()}
           {this.renderPings()}
         </div>
       );
@@ -295,10 +294,9 @@ export default class Cell extends React.Component<Props> {
           {this.renderFlipButton()}
           {this.renderCircle()}
           {this.renderShade()}
-          {this.renderImage()}
           {this.renderPickup()}
           {this.renderSolvedBy()}
-          {!this.props.image && (
+          {!this.props.isImage && (
             <div
               className="cell--value"
               style={{

@@ -188,7 +188,10 @@ export default class Player extends Component {
       return;
     }
     if (this.props.grid[selected.r][selected.c].isImage) {
-      return;
+      const sol = this.props.solution;
+      const hasSolutionLetter =
+        sol && sol[selected.r] && sol[selected.r][selected.c] !== '' && sol[selected.r][selected.c] !== '.';
+      if (!hasSolutionLetter) return;
     }
     if (this.isValidDirection(this.state.direction, selected)) {
       if (selected.r !== this.selected.r || selected.c !== this.selected.c) {
@@ -371,6 +374,7 @@ export default class Player extends Component {
       onToggleSkipFilledSquares,
       autoAdvanceCursor,
       grid,
+      solution,
       clues,
       circles,
       shades,
@@ -412,7 +416,21 @@ export default class Player extends Component {
     const {direction} = this.state;
     const selected = this.selected;
 
-    const gridWithColors = grid.map((row) =>
+    // Override isImage for cells that have a real solution letter — they should be typeable
+    // even if they have a background image (decorative coloring). This works at runtime for
+    // all games, including ones with stale isImage flags in stored data.
+    const correctedGrid = solution
+      ? grid.map((row, r) =>
+          row.map((cell, c) => {
+            if (cell.isImage && solution[r] && solution[r][c] !== '' && solution[r][c] !== '.') {
+              return {...cell, isImage: false};
+            }
+            return cell;
+          })
+        )
+      : grid;
+
+    const gridWithColors = correctedGrid.map((row) =>
       row.map((cell) => ({
         ...cell,
         attributionColor: cell.value && colorAttributionMode ? lightenHsl(users[cell.user_id]?.color) : '',
@@ -474,7 +492,7 @@ export default class Player extends Component {
               onSetSelected={this._setSelected}
               updateGrid={updateGrid}
               size={size}
-              grid={grid}
+              grid={correctedGrid}
               clues={clues}
               onSetCursorLock={this.handleSetCursorLock}
               enableDebug={window.location.search.indexOf('debug') !== -1}
@@ -507,7 +525,7 @@ export default class Player extends Component {
             onSetSelected={this._setSelected}
             updateGrid={updateGrid}
             size={size}
-            grid={grid}
+            grid={correctedGrid}
             clues={clues}
             onSetCursorLock={this.handleSetCursorLock}
             enableDebug={window.location.search.indexOf('debug') !== -1}
@@ -550,7 +568,7 @@ export default class Player extends Component {
             canSetDirection={this._canSetDirection}
             onSetSelected={this._setSelected}
             updateGrid={updateGrid}
-            grid={grid}
+            grid={correctedGrid}
             clues={clues}
             beta={beta}
             onCheck={this.props.onCheck}
@@ -588,7 +606,7 @@ export default class Player extends Component {
           canSetDirection={this._canSetDirection}
           onSetSelected={this._setSelected}
           updateGrid={updateGrid}
-          grid={grid}
+          grid={correctedGrid}
           clues={clues}
           beta={beta}
           onCheck={this.props.onCheck}
