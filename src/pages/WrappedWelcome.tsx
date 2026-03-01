@@ -1,3 +1,4 @@
+import {useEffect} from 'react';
 import useStateParams from '../lib/hooks/useStateParams';
 import Welcome from './Welcome';
 
@@ -131,6 +132,12 @@ const WrappedWelcome = (props: UseFencing) => {
     setIncludeSun(dayFilter.Sun);
     setIncludeUnknownDay(dayFilter.Unknown);
   }
+
+  // Persist the home page URL (with filter query params) so the nav link
+  // can return users to their last filter state instead of bare "/"
+  useEffect(() => {
+    sessionStorage.setItem('cwf:homeUrl', window.location.pathname + window.location.search);
+  });
 
   const welcomeProps = {
     statusFilter: makeStatusFilter(includeComplete, includeInProgress, includeNew),
