@@ -24,31 +24,43 @@
 }
 
 .replay .header--title {
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 500;
   color: #333;
   text-decoration: none;
 }
 
 .replay .header--subtitle {
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: 4px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .replay--controls-container {
   flex-shrink: 0;
   background: white;
-  border-top: 1px solid #e2e2e2;
+  border-bottom: 1px solid #e2e2e2;
   position: relative;
   z-index: 1;
+}
+
+.replay--control-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
 }
 
 .replay--control-icons {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
-  font-size: 35pt;
+  align-items: center;
+  font-size: 16pt;
+  color: var(--main-gray-1);
+}
+
+.replay--time {
+  font-size: 12px;
   color: var(--main-gray-1);
 }
 
@@ -59,11 +71,11 @@
 }
 
 .scrub--speed--option {
-  font-size: 25pt;
+  font-size: 11pt;
   cursor: pointer;
   font-weight: bold;
   color: var(--main-gray-1);
-  margin-left: 10px;
+  margin-left: 6px;
 }
 
 .scrub--speed--option.selected {
@@ -71,13 +83,13 @@
 }
 
 .replay--unavailable {
-  text-align: center;
-  padding: 40px 20px;
+  padding: 2px 20px;
   color: var(--main-gray-1);
+  font-size: 13px;
 }
 
 .replay--unavailable p {
-  margin: 8px 0;
+  margin: 2px 0;
 }
 
 .scrub--autoplay {
@@ -87,14 +99,14 @@
 }
 
 .replay--save-btn {
-  margin-top: 12px;
-  padding: 6px 16px;
+  margin-top: 4px;
+  padding: 4px 12px;
   background: var(--main-blue);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .replay--save-btn:hover {
@@ -107,8 +119,8 @@
 }
 
 .replay--save-status {
-  margin-top: 12px;
-  font-size: 13px;
+  margin-top: 2px;
+  font-size: 11px;
   color: var(--main-gray-1);
 }
 
@@ -127,10 +139,14 @@
 
 .dark .replay--controls-container {
   background: var(--dark-background);
-  border-top-color: #444;
+  border-bottom-color: #444;
 }
 
 .dark .replay--control-icons {
+  color: rgb(255 255 255 / 50%);
+}
+
+.dark .replay--time {
   color: rgb(255 255 255 / 50%);
 }
 

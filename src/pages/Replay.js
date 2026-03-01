@@ -14,7 +14,7 @@ import Chat from '../components/Chat';
 import Nav from '../components/common/Nav';
 import {Timeline} from '../components/Timeline/Timeline';
 import {isMobile, toArr} from '../lib/jsUtils';
-import Toolbar from '../components/Toolbar';
+
 import {SERVER_URL} from '../api/constants';
 
 const SCRUB_SPEED = 50; // 30 actions per second
@@ -384,27 +384,6 @@ class Replay extends Component {
     );
   }
 
-  renderToolbar() {
-    if (!this.game) return null;
-    const {clock} = this.game;
-    const {totalTime} = clock;
-    return (
-      <Toolbar
-        v2
-        replayMode
-        gid={this.props.gid}
-        mobile={isMobile()}
-        pausedTime={totalTime}
-        colorAttributionMode={this.state.colorAttributionMode}
-        listMode={this.state.listMode}
-        expandMenu={this.state.expandMenu}
-        onToggleColorAttributionMode={this.handleToggleColorAttributionMode}
-        onToggleListView={this.handleToggleListView}
-        onToggleExpandMenu={this.handleToggleExpandMenu}
-      />
-    );
-  }
-
   renderSnapshotFallback() {
     const {snapshotData} = this.state;
     if (!snapshotData) {
@@ -418,15 +397,11 @@ class Replay extends Component {
 
     let grid;
     let clues;
-    let info;
-    let message;
 
     if (snapshotData.type === 'snapshot') {
       // Full snapshot — show the solved grid as captured at solve time
       grid = snapshotData.snapshot.grid;
       clues = this.game && this.game.clues;
-      info = this.game && this.game.info;
-      message = 'Replay data has been cleaned up. Showing the final solved state.';
     } else if (snapshotData.type === 'solution_only') {
       // Solution-only fallback — build a grid from the puzzle solution
       grid = snapshotData.solution.map((row) =>
@@ -437,8 +412,6 @@ class Replay extends Component {
         }))
       );
       clues = snapshotData.clues;
-      info = snapshotData.info;
-      message = 'Replay data is no longer available. Showing the puzzle solution.';
     } else {
       return (
         <div className="replay--unavailable">
@@ -462,11 +435,7 @@ class Replay extends Component {
     const size = width / cols;
 
     return (
-      <div>
-        <div className="replay--unavailable" style={{marginBottom: 12}}>
-          <p>{message}</p>
-          {info && <p style={{fontWeight: 'bold'}}>{info.title}</p>}
-        </div>
+      <div className="flex--column flex--grow">
         <Player
           size={size}
           grid={grid}
@@ -557,11 +526,10 @@ class Replay extends Component {
       <div
         ref={this.controlsRef}
         style={{
-          flex: 1,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: 10,
+          padding: '4px 8px',
           outline: 'none',
           width,
         }}
@@ -578,58 +546,60 @@ class Replay extends Component {
             onSetPosition={this.handleSetPosition}
           />
         ) : null}
-        <div className="replay--control-icons">
-          <MdChevronLeft
-            ref={this.scrubLeftRef}
-            className={`scrub ${left ? 'active' : ''}`}
-            onMouseDown={this.handleMouseDownLeft}
-            onMouseUp={this.handleMouseUpLeft}
-            onTouchStart={this.handleMouseDownLeft}
-            onTouchEnd={this.handleMouseUpLeft}
-            onMouseLeave={this.handleMouseUpLeft}
-          />
-          <div
-            className="scrub--autoplay"
-            role="button"
-            tabIndex={0}
-            onClick={this.handleToggleAutoplay}
-            onKeyDown={this.handleAutoplayKeyDown}
-          >
-            {autoplayEnabled && <MdPause />}
-            {!autoplayEnabled && <MdPlayArrow />}
-          </div>
-          <MdChevronRight
-            title="Shortcut: Right Arrow"
-            ref={this.scrubRightRef}
-            className={`scrub ${right ? 'active' : ''}`}
-            onMouseDown={this.handleMouseDownRight}
-            onTouchStart={this.handleMouseDownRight}
-            onTouchEnd={this.handleMouseUpRight}
-            onMouseUp={this.handleMouseUpRight}
-            onMouseLeave={this.handleMouseUpRight}
-          />
-        </div>
-        <div className="replay--time">
-          {history.length > 0 && (
-            <div>
-              {formatTime(position / 1000)} / {formatTime(_.last(history).gameTimestamp / 1000)}
-            </div>
-          )}
-        </div>
-        <div className="scrub--speeds">
-          {AUTOPLAY_SPEEDS.map((speed) => (
+        <div className="replay--control-row">
+          <div className="replay--control-icons">
+            <MdChevronLeft
+              ref={this.scrubLeftRef}
+              className={`scrub ${left ? 'active' : ''}`}
+              onMouseDown={this.handleMouseDownLeft}
+              onMouseUp={this.handleMouseUpLeft}
+              onTouchStart={this.handleMouseDownLeft}
+              onTouchEnd={this.handleMouseUpLeft}
+              onMouseLeave={this.handleMouseUpLeft}
+            />
             <div
-              className={`scrub--speed--option${speed === this.state.autoplaySpeed ? ' selected' : ''}`}
-              onClick={this.handleSetAutoplaySpeed}
-              data-speed={speed}
+              className="scrub--autoplay"
               role="button"
               tabIndex={0}
-              onKeyDown={this.handleSetAutoplaySpeed}
-              key={speed}
+              onClick={this.handleToggleAutoplay}
+              onKeyDown={this.handleAutoplayKeyDown}
             >
-              {speed}x
+              {autoplayEnabled && <MdPause />}
+              {!autoplayEnabled && <MdPlayArrow />}
             </div>
-          ))}
+            <MdChevronRight
+              title="Shortcut: Right Arrow"
+              ref={this.scrubRightRef}
+              className={`scrub ${right ? 'active' : ''}`}
+              onMouseDown={this.handleMouseDownRight}
+              onTouchStart={this.handleMouseDownRight}
+              onTouchEnd={this.handleMouseUpRight}
+              onMouseUp={this.handleMouseUpRight}
+              onMouseLeave={this.handleMouseUpRight}
+            />
+          </div>
+          <div className="replay--time">
+            {history.length > 0 && (
+              <span>
+                {formatTime(position / 1000)} / {formatTime(_.last(history).gameTimestamp / 1000)}
+              </span>
+            )}
+          </div>
+          <div className="scrub--speeds">
+            {AUTOPLAY_SPEEDS.map((speed) => (
+              <div
+                className={`scrub--speed--option${speed === this.state.autoplaySpeed ? ' selected' : ''}`}
+                onClick={this.handleSetAutoplaySpeed}
+                data-speed={speed}
+                role="button"
+                tabIndex={0}
+                onKeyDown={this.handleSetAutoplaySpeed}
+                key={speed}
+              >
+                {speed}x
+              </div>
+            ))}
+          </div>
         </div>
         {this.renderSaveReplayButton()}
       </div>
@@ -655,6 +625,16 @@ class Replay extends Component {
     );
   }
 
+  getSnapshotMessage() {
+    const {snapshotData} = this.state;
+    if (!snapshotData) return null;
+    if (snapshotData.type === 'snapshot')
+      return 'Replay data has been cleaned up. Showing the final solved state.';
+    if (snapshotData.type === 'solution_only')
+      return 'Replay data is no longer available. Showing the puzzle solution.';
+    return null;
+  }
+
   getPuzzleTitle() {
     const game = this.game;
     if (game && game.info) return game.info.title;
@@ -669,34 +649,38 @@ class Replay extends Component {
         <Helmet>
           <title>{`Replay ${this.gid}: ${this.getPuzzleTitle()}`}</title>
         </Helmet>
-        {!isMobile() && (
-          <div
-            style={{
-              paddingLeft: 30,
-              paddingTop: 20,
-              paddingBottom: 20,
-            }}
-          >
-            {this.renderHeader()}
+        <div
+          style={{
+            paddingLeft: isMobile() ? 8 : 20,
+            paddingTop: isMobile() ? 4 : 8,
+            paddingBottom: 4,
+          }}
+        >
+          {this.renderHeader()}
+        </div>
+
+        {!this.state.replayUnavailable && (
+          <div className="replay--controls-container">{this.renderControls()}</div>
+        )}
+        {this.state.replayUnavailable && this.getSnapshotMessage() && (
+          <div className="replay--unavailable">
+            <p>{this.getSnapshotMessage()}</p>
           </div>
         )}
-        {this.renderToolbar()}
         <div
           className="flex--column flex--grow"
           style={{
-            padding: isMobile() ? 0 : 10,
-            border: '1px solid #E2E2E2',
+            padding: isMobile() ? 0 : 4,
+            border: isMobile() ? 'none' : '1px solid #E2E2E2',
           }}
         >
-          <div className="flex flex--grow" style={{padding: isMobile() ? 0 : 20, overflow: 'auto'}}>
+          <div
+            className="flex flex--grow"
+            style={{padding: isMobile() ? 0 : 8, overflow: isMobile() ? 'hidden' : 'auto'}}
+          >
             {this.renderPlayer()}
           </div>
-          <div className="replay--controls-container">{this.renderControls()}</div>
         </div>
-        {/* Controls:
-      Playback scrubber
-      Playback speed toggle
-      Skip inactivity checkbox */}
       </div>
     );
   }
