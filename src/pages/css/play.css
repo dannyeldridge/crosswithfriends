@@ -35,6 +35,15 @@
   vertical-align: middle;
 }
 
+.play--table a {
+  color: var(--main-blue);
+  text-decoration: none;
+}
+
+.play--table a:hover {
+  text-decoration: underline;
+}
+
 .play--table tr:last-child td {
   border-bottom: none;
 }
@@ -99,6 +108,10 @@
 
 .dark .play--status-inprogress {
   color: #999;
+}
+
+.dark .play--table a {
+  color: #6aa9f4;
 }
 
 .dark .play--abandon {
