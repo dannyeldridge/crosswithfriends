@@ -74,7 +74,7 @@ class Play extends Component {
 
     const {games} = this;
     if (!games) return; // history not loaded yet
-    const shouldAutocreate = !this.state.creating && (games.length === 0 || this.is_new);
+    const shouldAutocreate = !this.state.creating && (games.length === 0 || this.is_new || this.is_fencing);
     if (shouldAutocreate) {
       this.create();
       return;
