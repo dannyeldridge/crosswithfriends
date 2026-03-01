@@ -382,7 +382,7 @@ export const makeGrid = (textGrid, images) => {
         edits: [],
         value: '',
         number: null,
-        ...(images && images[flatIdx] ? {isImage: true} : {}),
+        ...(images && images[flatIdx] && cell === '' ? {isImage: true} : {}),
       };
     })
   );

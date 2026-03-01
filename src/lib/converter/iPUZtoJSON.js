@@ -50,7 +50,9 @@ export default function iPUZtoJSON(readerResult) {
         if (cell.style.shapebg === 'circle') {
           circles.push(flatIdx);
         }
-        if (cell.style.color || cell.style.highlight) {
+        if (cell.style.color) {
+          shades.push({index: flatIdx, color: '#' + cell.style.color});
+        } else if (cell.style.highlight) {
           shades.push(flatIdx);
         }
         if (

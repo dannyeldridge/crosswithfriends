@@ -7,7 +7,7 @@ import RerenderBoundary from '../RerenderBoundary';
 import {hashGridRow} from './hashGridRow';
 import Cell from './Cell';
 import {GridDataWithColor, CellCoords, ClueCoords, BattlePickup, CellStyles, Ping} from './types';
-import {CellIndex, Cursor, GridData, toCellIndex} from '../../shared/types';
+import {CellIndex, ColoredShade, Cursor, GridData, ShadeEntry, toCellIndex} from '../../shared/types';
 
 export interface GridProps {
   // Grid data
@@ -21,7 +21,7 @@ export interface GridProps {
 
   // Cell annotations
   circles?: CellIndex[];
-  shades?: CellIndex[];
+  shades?: ShadeEntry[];
   images?: Record<number, string>;
   pings?: Ping[];
   cursors: Cursor[];
@@ -79,10 +79,18 @@ export default class Grid extends React.PureComponent<GridProps> {
     );
   }
 
-  isShaded(r: number, c: number) {
+  isShaded(r: number, c: number): string | boolean {
     const {grid, shades} = this.props;
     const idx = toCellIndex(r, c, grid[0].length);
-    return (shades || []).indexOf(idx) !== -1 || this.isDoneByOpponent(r, c);
+    for (const entry of shades || []) {
+      if (typeof entry === 'object' && (entry as ColoredShade).index === idx) {
+        return (entry as ColoredShade).color;
+      }
+      if (entry === idx) {
+        return true;
+      }
+    }
+    return this.isDoneByOpponent(r, c);
   }
 
   getImage(r: number, c: number): string | undefined {

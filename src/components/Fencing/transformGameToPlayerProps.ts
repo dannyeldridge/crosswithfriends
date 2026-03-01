@@ -2,7 +2,7 @@
  * Perhaps this whole file could live elsewhere, e.g. Player/transformGameToPlayerProps?
  * */
 import _ from 'lodash';
-import {CluesJson, GameJson, Cursor, GridData, UserJson, CellIndex} from '../../shared/types';
+import {CluesJson, GameJson, Cursor, GridData, UserJson, CellIndex, ShadeEntry} from '../../shared/types';
 import {CellCoords, Ping} from '../Grid/types';
 import {PlayerActions} from './usePlayerActions';
 
@@ -12,7 +12,7 @@ interface PlayerProps {
   grid: GridData;
   solution: string[][];
   circles?: CellIndex[];
-  shades?: CellIndex[];
+  shades?: ShadeEntry[];
   pings?: Ping[];
   cursors: Cursor[];
   clues: CluesJson;
