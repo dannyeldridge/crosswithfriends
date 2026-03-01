@@ -11,7 +11,8 @@ import GameComponent from '../components/Game';
 import MobilePanel from '../components/common/MobilePanel';
 import Chat from '../components/Chat';
 import Powerups from '../components/common/Powerups';
-import {isMobile, rand_color} from '../lib/jsUtils';
+import {isMobile} from '../lib/jsUtils';
+import {pickDistinctColor} from '../lib/colorAssignment';
 
 import * as powerupLib from '../lib/powerups';
 import {recordSolve} from '../api/puzzle.ts';
@@ -279,10 +280,20 @@ class Game extends Component {
     return `user_color`;
   }
 
-  //TODO (jackz): this is how color is persisted
   get userColor() {
-    const color =
-      this.game.users[this.props.id]?.color || localStorage.getItem(this.userColorKey) || rand_color();
+    const existingColor = this.game.users[this.props.id]?.color || localStorage.getItem(this.userColorKey);
+
+    if (existingColor) {
+      localStorage.setItem(this.userColorKey, existingColor);
+      return existingColor;
+    }
+
+    const otherColors = Object.entries(this.game.users)
+      .filter(([uid]) => uid !== this.props.id)
+      .map(([, user]) => user?.color)
+      .filter(Boolean);
+
+    const color = pickDistinctColor(otherColors);
     localStorage.setItem(this.userColorKey, color);
     return color;
   }
