@@ -87,7 +87,13 @@ All of these must pass before merging to master:
 
 ## Error Tracking (Sentry)
 
-**Frontend** uses `@sentry/react` for error tracking, performance tracing, session replay, and structured logging. Initialized in `src/index.js` before all other imports.
+Sentry is opt-in via environment variables. Without the DSN set, Sentry is completely disabled (no data sent).
+
+- **Frontend**: Set `VITE_SENTRY_DSN` in the build environment. Initialized in `src/index.js` before all other imports.
+- **Backend**: Set `SENTRY_DSN` in the server environment. Initialized via `server/instrument.ts`.
+- **Source maps**: Set `SENTRY_AUTH_TOKEN` in the build environment for upload during `pnpm build`.
+
+**Frontend** uses `@sentry/react` for error tracking, performance tracing, session replay, and structured logging.
 
 **Capturing errors**: Use `Sentry.captureException(error)` in catch blocks to report errors as Sentry Issues. The `consoleLoggingIntegration` also captures `console.log`, `console.warn`, and `console.error` as Sentry logs automatically.
 
