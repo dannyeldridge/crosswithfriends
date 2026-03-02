@@ -8,8 +8,10 @@ import Confetti from './Confetti.js';
 import * as powerups from '../../lib/powerups';
 import Player from '../Player';
 import Toolbar from '../Toolbar';
+import MilestoneToast from './MilestoneToast';
 import {toArr} from '../../lib/jsUtils';
 import {toHex, darken, GREENISH} from '../../lib/colors';
+import GridWrapper from '../../lib/wrappers/GridWrapper';
 
 const skipFilledSquaresKey = 'skip-filled-squares';
 const autoAdvanceCursorKey = 'auto-advance-cursor';
@@ -31,6 +33,8 @@ export default class Game extends Component {
       autoAdvanceCursor: true,
       colorAttributionMode: false,
       expandMenu: false,
+      lastMilestone: 0,
+      milestoneMessage: null,
     };
   }
 
@@ -127,7 +131,26 @@ export default class Game extends Component {
     this.gameModel.updateCell(r, c, id, myColor, pencilMode, value, autocheckMode);
     this.props.onChange({isEdit: true});
     this.props.battleModel && this.props.battleModel.checkPickups(r, c, this.rawGame, this.props.team);
+    this.checkMilestone();
   };
+
+  checkMilestone() {
+    const game = this.game;
+    if (!game || game.solved) return;
+    const gridWrapper = new GridWrapper(game.grid);
+    const percent = gridWrapper.getPercentComplete();
+    const milestones = [75, 50, 25];
+    for (const m of milestones) {
+      if (percent >= m && this.state.lastMilestone < m) {
+        this.setState({lastMilestone: m, milestoneMessage: `${m}% complete!`});
+        clearTimeout(this.milestoneTimeout);
+        this.milestoneTimeout = setTimeout(() => {
+          this.setState({milestoneMessage: null});
+        }, 3000);
+        break;
+      }
+    }
+  }
 
   handleUpdateCursor = ({r, c}) => {
     const {id} = this.props;
@@ -394,6 +417,12 @@ export default class Game extends Component {
     );
   }
 
+  getPercentComplete() {
+    if (!this.game || !this.game.grid) return 0;
+    const gridWrapper = new GridWrapper(this.game.grid);
+    return gridWrapper.getPercentComplete();
+  }
+
   renderToolbar() {
     if (!this.game) return;
     const {clock, solved} = this.game;
@@ -456,6 +485,7 @@ export default class Game extends Component {
         replayRetained={this.props.replayRetained}
         savingReplay={this.props.savingReplay}
         isAuthenticated={this.props.isAuthenticated}
+        percentComplete={this.getPercentComplete()}
       />
     );
   }
@@ -474,6 +504,7 @@ export default class Game extends Component {
           {this.renderPlayer()}
         </div>
         {this.game.solved && <Confetti />}
+        {this.state.milestoneMessage && <MilestoneToast message={this.state.milestoneMessage} />}
       </div>
     );
   }

@@ -45,6 +45,7 @@ export interface InProgressGame {
   title: string;
   size: string;
   lastActivity: string;
+  percentComplete: number;
 }
 
 export interface UserStatsResponse {

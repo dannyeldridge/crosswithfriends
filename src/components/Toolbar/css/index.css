@@ -36,6 +36,19 @@ code {
   text-align: center;
 }
 
+.toolbar--progress {
+  font-size: 11px;
+  color: var(--main-gray-1);
+  margin-top: 2px;
+}
+
+.toolbar--mobile .toolbar--progress {
+  color: rgb(255 255 255 / 70%);
+  font-size: 11px;
+  margin-top: 0;
+  margin-left: 8px;
+}
+
 .toolbar--color-attribution-toggle,
 .toolbar--list-view,
 .toolbar--pencil,

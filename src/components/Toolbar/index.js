@@ -603,6 +603,9 @@ export default class Toolbar extends Component {
                     onStart={onStartClock}
                     onPause={onPauseClock}
                   />
+                  {!solved && !replayMode && this.props.percentComplete > 0 && (
+                    <span className="toolbar--progress">{this.props.percentComplete}%</span>
+                  )}
                   {!solved && !replayMode && !contest && this.renderCheckMenu()}
                   {!solved && !replayMode && !contest && this.renderRevealMenu()}
                   {!solved && !replayMode && contest && this.renderMarkSolvedButton()}
@@ -642,6 +645,9 @@ export default class Toolbar extends Component {
               onStart={onStartClock}
               onPause={onPauseClock}
             />
+            {!solved && !replayMode && this.props.percentComplete > 0 && (
+              <div className="toolbar--progress">{this.props.percentComplete}%</div>
+            )}
           </div>
           {!solved && !replayMode && !contest && this.renderCheckMenu()}
           {!solved && !replayMode && !contest && this.renderRevealMenu()}
