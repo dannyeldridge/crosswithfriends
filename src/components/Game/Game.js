@@ -8,12 +8,15 @@ import Confetti from './Confetti.js';
 import * as powerups from '../../lib/powerups';
 import Player from '../Player';
 import Toolbar from '../Toolbar';
+import MilestoneToast from './MilestoneToast';
 import {toArr} from '../../lib/jsUtils';
 import {toHex, darken, GREENISH} from '../../lib/colors';
+import GridWrapper from '../../lib/wrappers/GridWrapper';
 
 const skipFilledSquaresKey = 'skip-filled-squares';
 const autoAdvanceCursorKey = 'auto-advance-cursor';
 const vimModeKey = 'vim-mode';
+const showProgressKey = 'show-progress';
 const vimModeRegex = /^\d+(a|d)*$/;
 
 // component for gameplay -- incl. grid/clues & toolbar
@@ -31,6 +34,10 @@ export default class Game extends Component {
       autoAdvanceCursor: true,
       colorAttributionMode: false,
       expandMenu: false,
+      lastMilestone: 0,
+      milestoneInitialized: false,
+      milestoneMessage: null,
+      showProgress: true,
     };
   }
 
@@ -68,12 +75,42 @@ export default class Game extends Component {
     }
     this.setState({autoAdvanceCursor});
 
+    let showProgress = this.state.showProgress;
+    try {
+      const storedValue = localStorage.getItem(showProgressKey);
+      if (storedValue != null) {
+        showProgress = JSON.parse(storedValue);
+      }
+    } catch (_e) {
+      console.error('Failed to parse local storage: showProgress');
+    }
+    this.setState({showProgress});
+
     this.componentDidUpdate({});
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.milestoneTimeout);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.myColor !== this.props.myColor) {
       this.handleUpdateColor(this.props.id, this.props.myColor);
+    }
+
+    // Initialize lastMilestone from current grid so resuming a puzzle
+    // doesn't fire stale milestone toasts on the first edit.
+    if (!this.state.milestoneInitialized && this.game && this.game.grid) {
+      const initPercent = this.getPercentComplete();
+      const milestones = [75, 50, 25];
+      let initialMilestone = 0;
+      for (const m of milestones) {
+        if (initPercent >= m) {
+          initialMilestone = m;
+          break;
+        }
+      }
+      this.setState({lastMilestone: initialMilestone, milestoneInitialized: true});
     }
   }
 
@@ -127,7 +164,27 @@ export default class Game extends Component {
     this.gameModel.updateCell(r, c, id, myColor, pencilMode, value, autocheckMode);
     this.props.onChange({isEdit: true});
     this.props.battleModel && this.props.battleModel.checkPickups(r, c, this.rawGame, this.props.team);
+    this.checkMilestone();
   };
+
+  checkMilestone() {
+    if (!this.state.showProgress) return;
+    const game = this.game;
+    if (!game || game.solved) return;
+    const gridWrapper = new GridWrapper(game.grid);
+    const percent = gridWrapper.getPercentComplete();
+    const milestones = [75, 50, 25];
+    for (const m of milestones) {
+      if (percent >= m && this.state.lastMilestone < m) {
+        this.setState({lastMilestone: m, milestoneMessage: `${m}% complete!`});
+        clearTimeout(this.milestoneTimeout);
+        this.milestoneTimeout = setTimeout(() => {
+          this.setState({milestoneMessage: null});
+        }, 3000);
+        break;
+      }
+    }
+  }
 
   handleUpdateCursor = ({r, c}) => {
     const {id} = this.props;
@@ -230,6 +287,14 @@ export default class Game extends Component {
       const autoAdvanceCursor = !prevState.autoAdvanceCursor;
       localStorage.setItem(autoAdvanceCursorKey, JSON.stringify(autoAdvanceCursor));
       return {autoAdvanceCursor};
+    });
+  };
+
+  handleToggleShowProgress = () => {
+    this.setState((prevState) => {
+      const showProgress = !prevState.showProgress;
+      localStorage.setItem(showProgressKey, JSON.stringify(showProgress));
+      return {showProgress};
     });
   };
 
@@ -394,6 +459,12 @@ export default class Game extends Component {
     );
   }
 
+  getPercentComplete() {
+    if (!this.game || !this.game.grid) return 0;
+    const gridWrapper = new GridWrapper(this.game.grid);
+    return gridWrapper.getPercentComplete();
+  }
+
   renderToolbar() {
     if (!this.game) return;
     const {clock, solved} = this.game;
@@ -456,6 +527,9 @@ export default class Game extends Component {
         replayRetained={this.props.replayRetained}
         savingReplay={this.props.savingReplay}
         isAuthenticated={this.props.isAuthenticated}
+        showProgress={this.state.showProgress}
+        onToggleShowProgress={this.handleToggleShowProgress}
+        percentComplete={this.state.showProgress ? this.getPercentComplete() : 0}
       />
     );
   }
@@ -474,6 +548,7 @@ export default class Game extends Component {
           {this.renderPlayer()}
         </div>
         {this.game.solved && <Confetti />}
+        {this.state.milestoneMessage && <MilestoneToast message={this.state.milestoneMessage} />}
       </div>
     );
   }

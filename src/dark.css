@@ -355,6 +355,10 @@
   background-color: #383838;
 }
 
+.dark .toolbar--progress {
+  color: rgb(255 255 255 / 50%);
+}
+
 /* Toolbar extras */
 .dark .toolbar code {
   background-color: rgb(255 255 255 / 12%);

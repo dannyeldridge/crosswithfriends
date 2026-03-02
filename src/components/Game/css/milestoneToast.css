@@ -1,0 +1,24 @@
+.milestone-toast {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgb(0 0 0 / 80%);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 1s ease-out;
+}
+
+.milestone-toast--fading {
+  opacity: 0;
+}
+
+.dark .milestone-toast {
+  background: rgb(255 255 255 / 20%);
+}

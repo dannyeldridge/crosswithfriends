@@ -97,6 +97,20 @@ export default class GridWrapper {
     return true;
   }
 
+  getPercentComplete() {
+    let total = 0;
+    let filled = 0;
+    for (const cell of this.values()) {
+      if (!cell.black && !cell.isImage) {
+        total += 1;
+        if (cell.value !== '') filled += 1;
+      }
+    }
+    if (total === 0) return 0;
+    const percent = Math.round((filled / total) * 100);
+    return filled < total ? Math.min(percent, 99) : 100;
+  }
+
   getNextCell(r, c, direction) {
     let row = r;
     let col = c;

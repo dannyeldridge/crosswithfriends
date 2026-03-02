@@ -14,6 +14,7 @@ import {getUser, BattleModel} from '../store';
 import redirect from '../lib/redirect';
 import {createGame, dismissGame} from '../api/create_game';
 import {fetchPuzzleInfo} from '../api/puzzle';
+import {fetchGameProgress} from '../api/game_progress';
 import AuthContext from '../lib/AuthContext';
 
 import withRouter from '../lib/withRouter';
@@ -27,6 +28,7 @@ class Play extends Component {
       creating: false,
       puzzleInfo: null,
       abandonGid: null,
+      gameProgress: {},
     };
     this._handleNewGame = this.create.bind(this);
     this._handleNewFencingGame = this.createFencing.bind(this);
@@ -40,6 +42,7 @@ class Play extends Component {
     this.user.onAuth(() => {
       this.user.listUserHistory().then((userHistory) => {
         this.setState({userHistory: userHistory || {}});
+        this.fetchProgress(userHistory || {});
       });
     });
 
@@ -161,6 +164,17 @@ class Play extends Component {
     this.setState({userHistory: userHistory || {}, abandonGid: null});
   }
 
+  fetchProgress(userHistory) {
+    const pid = this.pid;
+    const inProgressGids = _.keys(userHistory).filter(
+      (gid) => userHistory[gid].pid === pid && !userHistory[gid].solved
+    );
+    if (inProgressGids.length === 0) return;
+    fetchGameProgress(inProgressGids).then((progress) => {
+      this.setState({gameProgress: progress});
+    });
+  }
+
   createAndJoinBattle() {
     actions.getNextBid((bid) => {
       const battle = new BattleModel(`/battle/${bid}`);
@@ -206,6 +220,12 @@ class Play extends Component {
               } else {
                 href = `/beta/game/${gid}`;
               }
+              let statusLabel = 'In progress';
+              if (solved) {
+                statusLabel = 'Solved';
+              } else if (this.state.gameProgress[gid] != null) {
+                statusLabel = `${this.state.gameProgress[gid]}%`;
+              }
               return (
                 <tr key={gid}>
                   <td className="play--date">{formatTimestamp(time)}</td>
@@ -214,7 +234,7 @@ class Play extends Component {
                   </td>
                   <td>
                     <span className={`play--status${solved ? '' : ' play--status-inprogress'}`}>
-                      {solved ? 'Solved' : 'In progress'}
+                      {statusLabel}
                     </span>
                   </td>
                   <td>

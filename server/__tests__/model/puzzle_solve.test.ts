@@ -36,6 +36,8 @@ describe('getInProgressGames', () => {
         },
       ],
     });
+    // Third call: computeGamesProgress events query
+    pool.query.mockResolvedValueOnce({rows: []});
 
     const result = await getInProgressGames('user-123');
 
@@ -46,9 +48,10 @@ describe('getInProgressGames', () => {
         title: 'Sunday Crossword',
         size: '15x15',
         lastActivity: '2026-02-22T12:00:00.000Z',
+        percentComplete: 0,
       },
     ]);
-    expect(pool.query).toHaveBeenCalledTimes(2);
+    expect(pool.query).toHaveBeenCalledTimes(3);
   });
 
   it('uses "Untitled" when title is null', async () => {
@@ -56,11 +59,14 @@ describe('getInProgressGames', () => {
     pool.query.mockResolvedValueOnce({
       rows: [{gid: 'game-1', pid: 'puzzle-1', title: null, size: '15x15', last_activity: null}],
     });
+    // computeGamesProgress events query
+    pool.query.mockResolvedValueOnce({rows: []});
 
     const result = await getInProgressGames('user-123');
 
     expect(result[0].title).toBe('Untitled');
     expect(result[0].lastActivity).toBe('');
+    expect(result[0].percentComplete).toBe(0);
   });
 });
 

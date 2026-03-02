@@ -10,6 +10,7 @@ import countersRouter from './counters';
 import authRouter from './auth';
 import userStatsRouter from './user_stats';
 import gameSnapshotRouter from './game_snapshot';
+import gameProgressRouter from './game_progress';
 // import statsRouter from './stats';
 
 const router = express.Router();
@@ -22,6 +23,7 @@ router.use('/record_solve', recordSolveRouter);
 router.use('/stats', statsRouter);
 router.use('/user-stats', userStatsRouter);
 router.use('/game-snapshot', gameSnapshotRouter);
+router.use('/game-progress', gameProgressRouter);
 router.use('/oembed', oEmbedRouter);
 router.use('/link_preview', linkPreviewRouter);
 router.use('/counters', countersRouter);
