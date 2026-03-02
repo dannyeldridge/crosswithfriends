@@ -3,7 +3,7 @@ import './css/play.css';
 import {Component} from 'react';
 import {Helmet} from 'react-helmet-async';
 import _ from 'lodash';
-import querystring from 'querystring';
+import qs from 'qs';
 import {formatTimestamp} from '../lib/formatTimestamp';
 import {Link} from 'react-router-dom';
 
@@ -60,7 +60,7 @@ class Play extends Component {
   }
 
   get query() {
-    return querystring.parse(this.props.location.search.slice(1));
+    return qs.parse(this.props.location.search.slice(1));
   }
 
   get is_fencing() {

@@ -2,7 +2,7 @@
 import * as Sentry from '@sentry/react';
 import {Component} from 'react';
 import _ from 'lodash';
-import querystring from 'querystring';
+import qs from 'qs';
 import {Helmet} from 'react-helmet-async';
 import Nav from '../components/common/Nav';
 
@@ -78,7 +78,7 @@ class Game extends Component {
   }
 
   get query() {
-    return querystring.parse(this.props.location.search.slice(1));
+    return qs.parse(this.props.location.search.slice(1));
   }
 
   initializeUser() {
