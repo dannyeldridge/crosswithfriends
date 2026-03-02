@@ -16,6 +16,7 @@ import GridWrapper from '../../lib/wrappers/GridWrapper';
 const skipFilledSquaresKey = 'skip-filled-squares';
 const autoAdvanceCursorKey = 'auto-advance-cursor';
 const vimModeKey = 'vim-mode';
+const showProgressKey = 'show-progress';
 const vimModeRegex = /^\d+(a|d)*$/;
 
 // component for gameplay -- incl. grid/clues & toolbar
@@ -35,6 +36,7 @@ export default class Game extends Component {
       expandMenu: false,
       lastMilestone: 0,
       milestoneMessage: null,
+      showProgress: true,
     };
   }
 
@@ -71,6 +73,17 @@ export default class Game extends Component {
       console.error('Failed to parse local storage: autoAdvanceCursor');
     }
     this.setState({autoAdvanceCursor});
+
+    let showProgress = this.state.showProgress;
+    try {
+      const storedValue = localStorage.getItem(showProgressKey);
+      if (storedValue != null) {
+        showProgress = JSON.parse(storedValue);
+      }
+    } catch (_e) {
+      console.error('Failed to parse local storage: showProgress');
+    }
+    this.setState({showProgress});
 
     this.componentDidUpdate({});
   }
@@ -135,6 +148,7 @@ export default class Game extends Component {
   };
 
   checkMilestone() {
+    if (!this.state.showProgress) return;
     const game = this.game;
     if (!game || game.solved) return;
     const gridWrapper = new GridWrapper(game.grid);
@@ -253,6 +267,14 @@ export default class Game extends Component {
       const autoAdvanceCursor = !prevState.autoAdvanceCursor;
       localStorage.setItem(autoAdvanceCursorKey, JSON.stringify(autoAdvanceCursor));
       return {autoAdvanceCursor};
+    });
+  };
+
+  handleToggleShowProgress = () => {
+    this.setState((prevState) => {
+      const showProgress = !prevState.showProgress;
+      localStorage.setItem(showProgressKey, JSON.stringify(showProgress));
+      return {showProgress};
     });
   };
 
@@ -485,7 +507,9 @@ export default class Game extends Component {
         replayRetained={this.props.replayRetained}
         savingReplay={this.props.savingReplay}
         isAuthenticated={this.props.isAuthenticated}
-        percentComplete={this.getPercentComplete()}
+        showProgress={this.state.showProgress}
+        onToggleShowProgress={this.handleToggleShowProgress}
+        percentComplete={this.state.showProgress ? this.getPercentComplete() : 0}
       />
     );
   }

@@ -182,10 +182,12 @@ export default class Toolbar extends Component {
   };
 
   renderExtrasMenu() {
-    const {vimMode, onToggleColorAttributionMode, skipFilledSquares, autoAdvanceCursor} = this.props;
+    const {vimMode, onToggleColorAttributionMode, skipFilledSquares, autoAdvanceCursor, showProgress} =
+      this.props;
     const vimModeLabel = vimMode ? 'Vim mode off' : 'Vim mode';
     const skipFilledSquaresLabel = skipFilledSquares ? "Don't skip filled" : 'Skip filled';
     const autoAdvanceLabel = autoAdvanceCursor ? 'No auto-advance' : 'Auto-advance';
+    const showProgressLabel = showProgress ? 'Hide progress' : 'Show progress';
     return (
       <ActionMenu
         label="Extras"
@@ -194,6 +196,7 @@ export default class Toolbar extends Component {
           [vimModeLabel]: this.handleVimModeClick,
           [skipFilledSquaresLabel]: this.handleSkipFilledSquaresClick,
           [autoAdvanceLabel]: this.props.onToggleAutoAdvanceCursor,
+          [showProgressLabel]: this.props.onToggleShowProgress,
           'Color Attribution': onToggleColorAttributionMode,
           'List View': this.props.onToggleListView,
           Pencil: this.props.onTogglePencil,
