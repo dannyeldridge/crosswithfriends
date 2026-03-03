@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import clsx from 'clsx';
+import {clsx} from 'clsx';
 import Emoji from '../common/Emoji';
 import powerups from '../../lib/powerups';
 

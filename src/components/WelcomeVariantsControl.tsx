@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {Link} from 'react-router';
-import clsx from 'clsx';
+import {clsx} from 'clsx';
 import {MdInfoOutline} from 'react-icons/md';
 import './css/welcomeVariantsControl.css';
 import InfoDialog from './common/InfoDialog';
