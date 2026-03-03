@@ -2,7 +2,6 @@ import './instrument';
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import morgan from 'morgan';
-import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 
@@ -25,7 +24,7 @@ app.use(
     contentSecurityPolicy: false, // disable CSP for now — MUI v4 uses inline styles
   })
 );
-app.use(bodyParser.json({limit: '500kb'}));
+app.use(express.json({limit: '500kb'}));
 app.use(cookieParser());
 app.use(passport.initialize());
 const port = process.env.PORT || 3000;
