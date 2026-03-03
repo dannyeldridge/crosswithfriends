@@ -156,7 +156,7 @@
 
   .profile--history-table {
     table-layout: fixed;
-    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .profile--history-table th {

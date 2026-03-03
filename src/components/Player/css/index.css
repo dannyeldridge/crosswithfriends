@@ -43,7 +43,7 @@
   overflow-y: auto;
   display: flex;
   align-items: center;
-  justify-content: flex-begin;
+  justify-content: flex-start;
 }
 
 .player--main--left {

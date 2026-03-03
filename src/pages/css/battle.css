@@ -76,7 +76,7 @@
 
 .battle--team {
   display: flex;
-  justify-content: top;
+  justify-content: flex-start;
   flex-direction: column;
   margin-left: 20px;
   margin-right: 20px;

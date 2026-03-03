@@ -33,7 +33,7 @@
 .editor--main--left {
   display: flex;
   flex-direction: column;
-  align-items: auto;
+  align-items: stretch;
 }
 
 .editor--main--left--grid {
