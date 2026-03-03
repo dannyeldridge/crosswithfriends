@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {useToggle} from 'react-use';
+import {useToggle} from '../../hooks/useToggle';
 import {PALETTE_COLORS} from '../../lib/colorAssignment';
 
 interface ColorPickerProps {

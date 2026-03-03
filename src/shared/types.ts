@@ -1,4 +1,4 @@
-import {Brand} from 'utility-types';
+type Brand<T, B> = T & {__brand: B};
 
 export interface InfoJson {
   type?: string; // this is sometimes set by the frontend, e.g. by the FileUpload module

@@ -1,6 +1,5 @@
 import EventEmitter from 'events';
 
-import async from 'async';
 import _ from 'lodash';
 import {db} from './firebase';
 
@@ -141,19 +140,15 @@ export default class Battle extends EventEmitter {
       const powerupTypes = _.keys(powerupData);
       const pickups = _.map(locations, ({i, j}) => ({i, j, type: _.sample(powerupTypes)}));
 
-      async.map(
-        pickups,
-        (pickup, mapCbk) => {
-          this.ref.child('pickups').push(pickup, () => mapCbk());
-        },
-        () => cbk && cbk()
-      );
+      Promise.all(
+        pickups.map(
+          (pickup) => new Promise((resolve) => this.ref.child('pickups').push(pickup, () => resolve()))
+        )
+      ).then(() => cbk && cbk());
     });
   }
 
   initialize(pid, bid, teams = 2) {
-    const shiftCbkArg = (fn) => (args, cbk) => fn(args, (val) => cbk(null, val)); // async style fun
-
     const args = _.map(_.range(teams), (team) => ({
       pid,
       battleData: {bid, team},
@@ -171,7 +166,9 @@ export default class Battle extends EventEmitter {
       puzzle.detach();
 
       // Need to wait for all of these to finish otherwise the redirect on emit(ready) kills things.
-      async.map(args, shiftCbkArg(actions.createGameForBattle), (err, gids) => {
+      Promise.all(
+        args.map((arg) => new Promise((resolve) => actions.createGameForBattle(arg, resolve)))
+      ).then((gids) => {
         this.gids = gids;
         this.ref.child('games').set(gids, () => {
           this.ref.child('powerups').set(powerups, () => {

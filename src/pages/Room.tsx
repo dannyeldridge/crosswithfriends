@@ -1,5 +1,5 @@
 import React, {Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState} from 'react';
-import {useUpdateEffect} from 'react-use';
+import {useUpdateEffect} from '../hooks/useUpdateEffect';
 import _ from 'lodash';
 import {Helmet} from 'react-helmet-async';
 import {useParams} from 'react-router';
