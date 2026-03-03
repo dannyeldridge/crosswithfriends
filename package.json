@@ -49,9 +49,9 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/react": "^19.0.0",
-      "@types/react-dom": "^19.0.0",
-      "esbuild": "^0.25.0",
+      "@types/react": "^19.2.14",
+      "@types/react-dom": "^19.2.3",
+      "esbuild": "^0.25.12",
       "serialize-javascript": "^7.0.3",
       "diff": "^5.2.0"
     },
