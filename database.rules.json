@@ -2,10 +2,6 @@
   "rules": {
     ".write": false,
     ".read": false,
-    "battle": {
-      ".write": true,
-      ".read": true
-    },
     "game": {
       ".read": "false",
       ".indexOn": ["pid"],
@@ -23,10 +19,6 @@
             ".write": "!data.exists()"
           }
         },
-        "battleData": {
-          ".read": true,
-          ".write": true
-        }
       }
     },
     "puzzle": {
