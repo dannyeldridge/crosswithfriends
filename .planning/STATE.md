@@ -2,24 +2,24 @@
 gsd_state_version: 1.0
 milestone: v7.24
 milestone_name: milestone
-current_phase: 7
-current_plan: Not started
-status: planning
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-04T22:00:18.045Z"
+current_phase: 9
+current_plan: 1 of 1
+status: complete
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-05T02:22:34Z"
 progress:
   total_phases: 9
-  completed_phases: 6
-  total_plans: 8
-  completed_plans: 8
+  completed_phases: 9
+  total_plans: 12
+  completed_plans: 12
 ---
 
 # Execution State
 
 ## Position
-- **Current Phase:** 7
-- **Current Plan:** Not started
-- **Status:** Ready to plan
+- **Current Phase:** 9
+- **Current Plan:** 1 of 1
+- **Status:** Complete
 
 ## Progress
 `[##########]` Phase 1: 2/2 plans complete
@@ -28,6 +28,9 @@ progress:
 `[##########]` Phase 4: 1/1 plans complete
 `[##########]` Phase 5: 1/1 plans complete
 `[##########]` Phase 6: 1/1 plans complete
+`[##########]` Phase 7: 1/1 plans complete
+`[##########]` Phase 8: 2/2 plans complete
+`[##########]` Phase 9: 1/1 plans complete
 
 ## Decisions
 - Firebase Auth classified as dormant (not dead) -- SDK loads, firebase.auth() executes, onAuthStateChanged fires, but login is bypassed by disableFbLogin=true
@@ -75,6 +78,28 @@ progress:
 - [Phase 06]: demoGame.js SERVER_TIME is client-side only (never reaches assignTimestamp) -- sentinel never resolved, replacing with Date.now() is an improvement
 - [Phase 06]: user/{id}/history is highest-priority migration item for Phase 9 -- requires new game_history table with local_id column for guest support
 
+- [Phase 07]: Firebase removal is feasible with 3-5 weeks of prerequisite work -- primary risk is guest user local_id mapping in game_history table
+- [Phase 07]: 12 removal steps organized into 4 parallel tracks: Timestamps (A), User History (B), Feature Migration (C), Cleanup (D)
+- [Phase 07]: Critical path runs through Track B (user history migration): P2 -> Step 5 -> Step 6 -> Steps 10-12 = 7-13 days
+- [Phase 07]: PR #352 (battle removal, OPEN) listed as prerequisite P1 -- not assumed merged
+- [Phase 07]: 3 quick wins identified for immediate execution: logSolve dead code removal, getTime()->Date.now(), serverTimeOffset listener removal
+- [Phase 07]: assignTimestamp() removal (Step 3) rated Medium risk due to cached client deployment timing concern
+- [Phase 08]: Compat layer (Option A) achievable in <1 day with 3 import path changes; zero bundle benefit but buys version currency
+- [Phase 08]: Full modular migration (Option B) estimated at 5-10 dev-days; 58-81% Firebase bundle reduction; neither option resolves architectural concerns
+- [Phase 08]: Only v9 breaking changes affect codebase APIs -- v10/v11 have zero impact; Step 5 (battle.js) eliminated if PR #352 merged
+- [Phase 08]: Long-term maintenance cost is the decisive comparison dimension -- upgrading leaves all architecture concerns (dual-write, guest identity, real-time for static data) untouched
+- [Phase 08]: Hybrid path (compat + removal) provides both immediate SDK currency (<1 day) and long-term architecture resolution (3-5 weeks per Phase 7)
+- [Phase 08]: Comparison references Phase 7 findings directly rather than repeating them -- enables side-by-side reading of 07-REMOVAL.md and 08-UPGRADE.md
+- [Phase 08]: All 4 ROADMAP Phase 8 success criteria verified met: breaking changes, compat evaluation, upgrade steps, and comparison section
+
+- [Phase 09]: game_history table uses UUID PK (gen_random_uuid) not SERIAL -- matches users table pattern, refines Phase 7 sketch
+- [Phase 09]: pid is TEXT not INTEGER throughout -- matches puzzles.pid type despite Firebase storing numeric pid
+- [Phase 09]: Boolean solved with "started" inferred from row existence -- matches Firebase data model, avoids enum migration complexity
+- [Phase 09]: Keep both user_id and local_id on merged rows -- audit trail preservation over data cleanup
+- [Phase 09]: CHECK constraint requires at least one identity (user_id or local_id) -- prevents orphaned records
+- [Phase 09]: solved_at column added beyond Phase 7 sketch -- enables solve-time analytics without cross-table joins
+- [Phase 09]: All 4 ROADMAP Phase 9 success criteria verified met: schema coverage, local_id guest support, API endpoints, load impact
+
 ## Blockers
 None
 
@@ -93,7 +118,12 @@ None
 | 05 | 01 | 2min | 2 | 1 |
 | Phase 05 P01 | 2min | 2 tasks | 1 files |
 | 06 | 01 | 6min | 2 | 1 |
+| 07 | 01 | 6min | 2 | 1 |
+| Phase 07 P01 | 6min | 2 tasks | 1 files |
+| Phase 08 P01 | 4min | 2 tasks | 1 files |
+| 08 | 02 | 2min | 2 | 1 |
+| 09 | 01 | 5min | 2 | 1 |
 
 ## Last Session
-- **Timestamp:** 2026-03-04T21:58:47Z
-- **Stopped at:** Completed 06-01-PLAN.md
+- **Timestamp:** 2026-03-05T02:22:34Z
+- **Stopped at:** Completed 09-01-PLAN.md

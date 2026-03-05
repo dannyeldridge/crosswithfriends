@@ -17,10 +17,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Data Overlap Analysis** - Identify what exists in both Firebase and PostgreSQL, surface user-facing risk if Firebase is removed
 - [x] **Phase 4: Read Path Tracing** - Trace every Firebase read end-to-end from trigger to UI rendering
 - [x] **Phase 5: Write Path Tracing** - Trace every Firebase write end-to-end and identify all dual-write locations
-- [ ] **Phase 6: Data Integrity Analysis** - Analyze SERVER_TIME/getTime usage and inventory data that exists only in Firebase with no PostgreSQL equivalent
-- [ ] **Phase 7: Removal Path Assessment** - Produce the full Firebase removal analysis with effort estimates, risk ratings, and prerequisite work
-- [ ] **Phase 8: Upgrade Path Assessment** - Produce the Firebase SDK v7-to-v10 upgrade analysis including compat layer option and breaking changes
-- [ ] **Phase 9: PostgreSQL Schema Analysis** - Define the PG schema changes needed to replace Firebase-owned data responsibilities
+- [x] **Phase 6: Data Integrity Analysis** - Analyze SERVER_TIME/getTime usage and inventory data that exists only in Firebase with no PostgreSQL equivalent
+- [x] **Phase 7: Removal Path Assessment** - Produce the full Firebase removal analysis with effort estimates, risk ratings, and prerequisite work
+- [x] **Phase 8: Upgrade Path Assessment** - Produce the Firebase SDK v7-to-v10 upgrade analysis including compat layer option and breaking changes
+- [x] **Phase 9: PostgreSQL Schema Analysis** - Define the PG schema changes needed to replace Firebase-owned data responsibilities
 
 ## Phase Details
 
@@ -108,7 +108,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 06-01-PLAN.md -- Build 06-INTEGRITY.md with timestamp dependency chain analysis (DATA-03) and Firebase-only data inventory with user history deep-dive (DATA-04)
+- [x] 06-01-PLAN.md -- Build 06-INTEGRITY.md with timestamp dependency chain analysis (DATA-03) and Firebase-only data inventory with user history deep-dive (DATA-04)
 
 ### Phase 7: Removal Path Assessment
 **Goal**: A complete, actionable Firebase removal analysis that gives the team everything needed to decide whether full removal is feasible and what it would take
@@ -120,11 +120,10 @@ Plans:
   3. Battle mode is analyzed as a fork: the "delete" path (if battle is dead in production) and the "migrate" path (if battle is live) are both documented with their respective effort and risk profiles
   4. Prerequisites that must be true before removal can begin are explicitly listed (e.g., "PG `game_history` table must exist", "`GET /api/time` must be deployed")
   5. The document ends with a single summarizing statement: "Full Firebase removal is [feasible/not feasible] with [N] weeks of prerequisite work, with the primary risk being [X]"
-**Plans**: 2 plans
+**Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md -- Build the RTDB path census document with path matrix, feature rollup, PG gap analysis, and decision-gate unknowns (FEAT-01)
-- [ ] 02-02-PLAN.md -- Cross-validate census completeness and consistency, then human review (FEAT-01)
+- [x] 07-01-PLAN.md -- Build 07-REMOVAL.md with ordered removal steps, effort/risk ratings, prerequisites, battle mode fork, and feasibility statement (MIGR-01, MIGR-04)
 
 ### Phase 8: Upgrade Path Assessment
 **Goal**: A complete analysis of upgrading from Firebase SDK v7.24.0 to v10+ including the compat layer option, all breaking changes, and the full effort required
@@ -138,8 +137,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Build the RTDB path census document with path matrix, feature rollup, PG gap analysis, and decision-gate unknowns (FEAT-01)
-- [ ] 02-02-PLAN.md -- Cross-validate census completeness and consistency, then human review (FEAT-01)
+- [x] 08-01-PLAN.md -- Build 08-UPGRADE.md with compat evaluation, breaking changes, upgrade steps, summary table, dependency graph, and bundle analysis (MIGR-02)
+- [x] 08-02-PLAN.md -- Add upgrade-vs-removal comparison section, cross-phase references, and validate all 4 ROADMAP success criteria (MIGR-02)
 
 ### Phase 9: PostgreSQL Schema Analysis
 **Goal**: A complete specification of every PostgreSQL schema change needed to replace Firebase-owned data responsibilities, enabling the team to estimate the database work required for removal
@@ -150,11 +149,10 @@ Plans:
   2. The `game_history` table design explicitly addresses guest user support via `local_id` column with explanation of how it maps to the existing `localId` localStorage UUID
   3. Each proposed schema change includes the new API endpoints needed to expose it (method, path, request/response shape)
   4. Load impact of the new tables is estimated: which existing high-traffic endpoints would be affected and by how much (rough order-of-magnitude, not a benchmark)
-**Plans**: 2 plans
+**Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md -- Build the RTDB path census document with path matrix, feature rollup, PG gap analysis, and decision-gate unknowns (FEAT-01)
-- [ ] 02-02-PLAN.md -- Cross-validate census completeness and consistency, then human review (FEAT-01)
+- [x] 09-01-PLAN.md -- Build 09-SCHEMA.md with game_history table design, guest identity support, API endpoints, P1-P3 path treatment, load impact analysis, and ROADMAP validation (MIGR-03)
 
 ## Progress
 
@@ -170,7 +168,7 @@ Note: Phases 4 and 5 depend only on Phase 1 (not each other) and can run in para
 | 3. Data Overlap Analysis | 1/1 | Complete | 2026-03-04 |
 | 4. Read Path Tracing | 1/1 | Complete | 2026-03-04 |
 | 5. Write Path Tracing | 1/1 | Complete | 2026-03-04 |
-| 6. Data Integrity Analysis | 0/1 | Not started | - |
-| 7. Removal Path Assessment | 0/? | Not started | - |
-| 8. Upgrade Path Assessment | 0/? | Not started | - |
-| 9. PostgreSQL Schema Analysis | 0/? | Not started | - |
+| 6. Data Integrity Analysis | 1/1 | Complete | 2026-03-04 |
+| 7. Removal Path Assessment | 1/1 | Complete | 2026-03-04 |
+| 8. Upgrade Path Assessment | 2/2 | Complete | 2026-03-04 |
+| 9. PostgreSQL Schema Analysis | 1/1 | Complete | 2026-03-04 |
