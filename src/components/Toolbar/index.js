@@ -4,7 +4,6 @@ import {MdBorderAll, MdChatBubble, MdList, MdSlowMotionVideo, MdErrorOutline} fr
 import {AiOutlineMenuFold, AiOutlineMenuUnfold} from 'react-icons/ai';
 import {RiPaintFill, RiPaintLine} from 'react-icons/ri';
 import {FaList, FaPencil, FaSquareCheck, FaCircleInfo} from 'react-icons/fa6';
-import {Link} from 'react-router';
 import Clock from './Clock';
 import ConfirmDialog from '../common/ConfirmDialog';
 import ActionMenu from './ActionMenu';
@@ -594,7 +593,6 @@ export default class Toolbar extends Component {
         <>
           <div className="flex flex--align-center toolbar--mobile">
             <div className="flex flex--grow flex--align-center toolbar--mobile--top">
-              <Link to="/">CWF</Link>{' '}
               {!expandMenu ? (
                 <>
                   <Clock
