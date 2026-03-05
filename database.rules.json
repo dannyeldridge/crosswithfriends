@@ -18,7 +18,7 @@
           "$eventId": {
             ".write": "!data.exists()"
           }
-        },
+        }
       }
     },
     "puzzle": {
