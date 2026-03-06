@@ -55,12 +55,14 @@ test.describe('Puzzle list', () => {
 
     // Uncheck Midi checkbox and intercept the API response
     const midiCheckbox = page.locator('input[type="checkbox"][data-header="Size"][data-name="Midi"]');
-    const responsePromise = page.waitForResponse((r) => r.url().includes('/api/puzzle_list'));
+    const responsePromise = page.waitForResponse(
+      (r) => r.url().includes('/api/puzzle_list') && r.url().includes('Midi')
+    );
     await midiCheckbox.click();
     const response = await responsePromise;
 
     // Verify the API request sent the correct filter
-    expect(response.url()).toMatch(/Midi[^=]*=false/);
+    expect(response.url()).toContain('filter%5BsizeFilter%5D%5BMidi%5D=false');
 
     // Verify the backend processed it (returned puzzles)
     const body = await response.json();
