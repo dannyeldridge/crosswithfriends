@@ -78,6 +78,10 @@ class SocketManager {
 
       socket.on('game_event', async (message, ack) => {
         const event = message.event;
+        // Replace Firebase-style sentinel timestamps with real server time
+        if (typeof event.timestamp !== 'number') {
+          event.timestamp = Date.now();
+        }
         // Stamp verified user identity if authenticated
         if (socket.data.authUser) {
           event.verifiedUserId = socket.data.authUser.userId;
