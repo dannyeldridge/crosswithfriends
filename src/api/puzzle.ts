@@ -25,9 +25,11 @@ export async function createNewPuzzle(
     headers.Authorization = `Bearer ${opts.accessToken}`;
   }
   const body = JSON.stringify(data);
-  const sizeKb = Math.round(body.length / 1024);
-  if (sizeKb > 1024) {
-    throw new Error(`Puzzle is too large to upload (${sizeKb} KB). Maximum size is 1 MB.`);
+  const sizeKb = Math.ceil(body.length / 1024);
+  const MAX_SIZE_KB = 1024;
+  const sizeError = `Puzzle is too large to upload (${sizeKb} KB). Maximum size is 1 MB.`;
+  if (sizeKb > MAX_SIZE_KB) {
+    throw new Error(sizeError);
   }
   const resp = await fetch(url, {
     method: 'POST',
@@ -36,7 +38,7 @@ export async function createNewPuzzle(
   });
   if (!resp.ok) {
     if (resp.status === 413) {
-      throw new Error(`Puzzle is too large to upload (${sizeKb} KB). Maximum size is 1 MB.`);
+      throw new Error(sizeError);
     }
     const text = await resp.text().catch(() => '');
     throw new Error(text || `Upload failed (${resp.status})`);
