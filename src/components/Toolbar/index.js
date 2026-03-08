@@ -232,7 +232,7 @@ export default class Toolbar extends Component {
         target="_blank"
         rel="noreferrer"
       >
-        <MdSlowMotionVideo />
+        <MdSlowMotionVideo className="toolbar--mobile-icon" />
       </a>
     );
   }
@@ -249,7 +249,11 @@ export default class Toolbar extends Component {
           onClick={onToggleColorAttributionMode}
           onKeyDown={handleKeyDown(onToggleColorAttributionMode)}
         >
-          {colorAttributionMode ? <RiPaintFill /> : <RiPaintLine />}
+          {colorAttributionMode ? (
+            <RiPaintFill className="toolbar--mobile-icon" />
+          ) : (
+            <RiPaintLine className="toolbar--mobile-icon" />
+          )}
         </div>
       );
     }
@@ -274,14 +278,14 @@ export default class Toolbar extends Component {
         return (
           <MdBorderAll
             onClick={this.handleToggleListView}
-            className={`toolbar--list-view${listMode ? ' on' : ''}`}
+            className={`toolbar--list-view toolbar--mobile-icon${listMode ? ' on' : ''}`}
           />
         );
       }
       return (
         <MdList
           onClick={this.handleToggleListView}
-          className={`toolbar--list-view${listMode ? ' on' : ''}`}
+          className={`toolbar--list-view toolbar--mobile-icon${listMode ? ' on' : ''}`}
         />
       );
     }
@@ -301,15 +305,15 @@ export default class Toolbar extends Component {
   }
 
   renderChatButton() {
-    return <MdChatBubble onClick={this.handleToggleChat} className="toolbar--chat" />;
+    return <MdChatBubble onClick={this.handleToggleChat} className="toolbar--chat toolbar--mobile-icon" />;
   }
 
   renderExpandMenuButton() {
     const {expandMenu} = this.props;
     return expandMenu ? (
-      <AiOutlineMenuFold onClick={this.handleToggleExpandMenu} />
+      <AiOutlineMenuFold onClick={this.handleToggleExpandMenu} className="toolbar--mobile-icon" />
     ) : (
-      <AiOutlineMenuUnfold onClick={this.handleToggleExpandMenu} />
+      <AiOutlineMenuUnfold onClick={this.handleToggleExpandMenu} className="toolbar--mobile-icon" />
     );
   }
 
@@ -359,7 +363,7 @@ export default class Toolbar extends Component {
         onMouseDown={handleMouseDown}
         title="Autocheck"
       >
-        <FaSquareCheck className="toolbar--icon-autocheck" />
+        <FaSquareCheck className="toolbar--icon-autocheck toolbar--mobile-icon" />
       </div>
     );
   }
