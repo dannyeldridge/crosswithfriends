@@ -1,5 +1,6 @@
 import './css/clock.css';
 import {Component} from 'react';
+import {FaPause, FaStopwatch} from 'react-icons/fa6';
 import {MAX_CLOCK_INCREMENT} from '../../lib/timing';
 
 export const formatMilliseconds = (ms) => {
@@ -95,18 +96,21 @@ export default class Clock extends Component {
 
   render() {
     const {clock} = this.state;
-    const clockStr = this.isPaused ? `(${clock})` : clock;
-    const titleStr = this.isPaused ? 'Click to unpause' : 'Click to pause';
+    const isPaused = this.isPaused;
+    const StatusIcon = isPaused ? FaPause : FaStopwatch;
+    const titleStr = isPaused ? 'Click to unpause' : 'Click to pause';
     return (
       <div
-        className="clock"
+        className={`clock${isPaused ? ' clock--paused' : ''}`}
         onClick={this._togglePause}
         onKeyDown={this._handleKeyDown}
         role="button"
         tabIndex={0}
         title={titleStr}
+        aria-pressed={isPaused}
       >
-        {clockStr}
+        <StatusIcon className="clock__icon" aria-hidden="true" />
+        <span className="clock__value">{clock}</span>
       </div>
     );
   }
