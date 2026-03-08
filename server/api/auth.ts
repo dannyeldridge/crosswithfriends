@@ -76,12 +76,16 @@ const strictLimiter = rateLimit({
   message: {error: 'Too many requests, please try again later'},
 });
 
+// Key by user ID when authenticated, fall back to IP for unauthenticated requests
+const userOrIpKey = (req: express.Request) => req.authUser?.userId || req.ip || 'unknown';
+
 // Moderate limit for email-sending endpoints (verification, password reset)
 const emailLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5, // 5 emails per window
   standardHeaders: 'draft-8',
   legacyHeaders: false,
+  keyGenerator: userOrIpKey,
   message: {error: 'Too many requests, please try again later'},
 });
 
@@ -91,6 +95,7 @@ const authLimiter = rateLimit({
   max: 30,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
+  keyGenerator: userOrIpKey,
   message: {error: 'Too many requests, please try again later'},
 });
 

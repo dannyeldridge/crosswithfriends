@@ -61,7 +61,7 @@ describe('auth rate limiting', () => {
       await request(app).post('/test');
       const res = await request(app).post('/test');
       expect(res.status).toBe(429);
-      expect(res.body.error).toMatch(/Too many requests/);
+      expect(res.body).toEqual({error: 'Too many requests, please try again later'});
     });
   });
 
