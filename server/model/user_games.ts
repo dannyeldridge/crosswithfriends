@@ -9,21 +9,22 @@ export type PuzzleStatusMap = {[pid: string]: 'solved' | 'started'};
  * Returns a map of pid -> 'solved' | 'started'.
  */
 export async function getGuestPuzzleStatuses(dfacId: string): Promise<PuzzleStatusMap> {
+  // Use UNION to let Postgres use uid and payload_id indexes separately,
+  // then join create events and snapshots only on the distinct game IDs.
   const result = await pool.query(
-    `WITH guest_games AS (
-       SELECT DISTINCT ge.gid,
-         ce.event_payload->'params'->>'pid' AS pid,
-         CASE WHEN gs.gid IS NOT NULL THEN true ELSE false END AS solved
-       FROM game_events ge
-       JOIN game_events ce ON ce.gid = ge.gid AND ce.event_type = 'create'
-       LEFT JOIN game_snapshots gs ON gs.gid = ge.gid
-       WHERE ge.uid = $1 OR (ge.event_payload->'params'->>'id') = $1
+    `WITH user_gids AS (
+       SELECT DISTINCT gid FROM game_events WHERE uid = $1
+       UNION
+       SELECT DISTINCT gid FROM game_events WHERE (event_payload->'params'->>'id') = $1
      )
-     SELECT pid,
-       CASE WHEN bool_or(solved) THEN 'solved' ELSE 'started' END AS status
-     FROM guest_games
-     WHERE pid IS NOT NULL
-     GROUP BY pid`,
+     SELECT
+       ce.event_payload->'params'->>'pid' AS pid,
+       CASE WHEN bool_or(gs.gid IS NOT NULL) THEN 'solved' ELSE 'started' END AS status
+     FROM user_gids ug
+     JOIN game_events ce ON ce.gid = ug.gid AND ce.event_type = 'create'
+     LEFT JOIN game_snapshots gs ON gs.gid = ug.gid
+     WHERE ce.event_payload->'params'->>'pid' IS NOT NULL
+     GROUP BY ce.event_payload->'params'->>'pid'`,
     [dfacId]
   );
 
