@@ -1,16 +1,23 @@
 .welcome-variants {
   display: flex;
   flex-direction: column;
-  padding: 8px 20px !important;
   font-size: 13px;
+}
+
+.welcome--sidebar > .welcome-variants {
+  padding: 8px 25px;
 }
 
 .welcome-variants a {
   text-decoration: none;
 }
 
+.welcome-variants .nav--info {
+  margin-left: 4px;
+}
+
 .welcome-variants--title {
-  font-size: 110%;
+  font-size: 100%;
   font-weight: 600;
 }
 

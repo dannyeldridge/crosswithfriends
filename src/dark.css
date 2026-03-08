@@ -425,4 +425,6 @@
   --dark-background: #121212;
   --dark-background-1: rgb(255 255 255 / 5%);
   --dark-background-2: rgb(255 255 255 / 12%);
+  --dark-dialog-shadow: 0 8px 32px rgb(255 255 255 / 8%);
+  --dark-dialog-border: 1px solid rgb(255 255 255 / 18%);
 }
