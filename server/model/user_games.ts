@@ -92,7 +92,7 @@ export async function getUserGamesForPuzzle(
   const result = await pool.query(
     `WITH user_games AS (
        -- v2 games from game_events
-       SELECT gid, MAX(ts) AS last_activity, true AS v2
+       SELECT gid, MAX(ts) AS last_activity, true AS v2, false AS fh_solved
        FROM (
          SELECT gid, ts FROM game_events WHERE uid = ANY($1)
          UNION ALL
@@ -104,17 +104,18 @@ export async function getUserGamesForPuzzle(
        UNION ALL
 
        -- Legacy games from firebase_history
-       SELECT fh.gid, to_timestamp(fh.activity_time / 1000) AS last_activity, false AS v2
+       SELECT fh.gid, to_timestamp(fh.activity_time / 1000) AS last_activity, false AS v2, fh.solved AS fh_solved
        FROM firebase_history fh
        WHERE fh.dfac_id = ANY($1) AND fh.pid::text = $2
          AND NOT EXISTS (
            SELECT 1 FROM game_events ge WHERE ge.gid = fh.gid AND (ge.uid = ANY($1) OR (ge.event_payload->'params'->>'id') = ANY($1))
          )
+         ${options.userId ? 'AND NOT EXISTS (SELECT 1 FROM game_dismissals gd WHERE gd.gid = fh.gid AND gd.user_id = $3)' : ''}
      )
      SELECT
        ug.gid,
        COALESCE(ce.event_payload->'params'->>'pid', $2) AS pid,
-       CASE WHEN gs.gid IS NOT NULL THEN true ELSE false END AS solved,
+       CASE WHEN gs.gid IS NOT NULL OR ug.fh_solved THEN true ELSE false END AS solved,
        ug.last_activity,
        ug.v2
      FROM user_games ug
