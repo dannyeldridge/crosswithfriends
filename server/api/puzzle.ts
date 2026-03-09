@@ -6,6 +6,36 @@ import {verifyAccessToken} from '../auth/jwt';
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /puzzle:
+ *   post:
+ *     tags: [Puzzles]
+ *     summary: Upload a puzzle
+ *     description: Upload a new crossword puzzle. Optionally authenticated to associate the puzzle with a user.
+ *     security: [{bearerAuth: []}, {}]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [puzzle]
+ *             properties:
+ *               puzzle: {type: object, description: Puzzle data (grid, clues, info, etc.)}
+ *               isPublic: {type: boolean}
+ *               pid: {type: string, description: Optional custom puzzle ID}
+ *     responses:
+ *       200:
+ *         description: Puzzle created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pid: {type: string}
+ *                 duplicate: {type: string, description: PID of existing duplicate if found}
+ */
 router.post<{}, AddPuzzleResponse, AddPuzzleRequest>('/', async (req, res) => {
   // Optional auth: extract userId if token is present
   let userId: string | null = null;
@@ -22,6 +52,32 @@ router.post<{}, AddPuzzleResponse, AddPuzzleRequest>('/', async (req, res) => {
   });
 });
 
+/**
+ * @openapi
+ * /puzzle/{pid}/info:
+ *   get:
+ *     tags: [Puzzles]
+ *     summary: Get puzzle info
+ *     description: Returns metadata about a puzzle (title, author, description, etc.).
+ *     parameters:
+ *       - in: path
+ *         name: pid
+ *         required: true
+ *         schema: {type: string}
+ *         description: Puzzle ID
+ *     responses:
+ *       200:
+ *         description: Puzzle info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 title: {type: string}
+ *                 author: {type: string}
+ *                 description: {type: string}
+ *       404: {description: Puzzle not found}
+ */
 router.get<{pid: string}>('/:pid/info', async (req, res, next) => {
   try {
     const info = await getPuzzleInfo(req.params.pid);

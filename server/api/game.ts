@@ -10,6 +10,34 @@ import {dismissGameForUser, undismissGameForUser} from '../model/game_dismissal'
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /game:
+ *   post:
+ *     tags: [Games]
+ *     summary: Create a new game
+ *     description: Create a new game session for a puzzle.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [gid, pid]
+ *             properties:
+ *               gid: {type: string, description: Game ID}
+ *               pid: {type: string, description: Puzzle ID}
+ *     responses:
+ *       200:
+ *         description: Game created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 gid: {type: string}
+ *       404: {description: Puzzle not found}
+ */
 router.post<{}, CreateGameResponse | {error: string}, CreateGameRequest>('/', async (req, res, next) => {
   try {
     const gid = await addInitialGameEvent(req.body.gid, req.body.pid);
@@ -23,6 +51,34 @@ router.post<{}, CreateGameResponse | {error: string}, CreateGameRequest>('/', as
   }
 });
 
+/**
+ * @openapi
+ * /game/{gid}:
+ *   get:
+ *     tags: [Games]
+ *     summary: Get game details
+ *     description: Returns game info including title, author, solve duration, and size.
+ *     parameters:
+ *       - in: path
+ *         name: gid
+ *         required: true
+ *         schema: {type: string}
+ *         description: Game ID
+ *     responses:
+ *       200:
+ *         description: Game details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 gid: {type: string}
+ *                 title: {type: string}
+ *                 author: {type: string}
+ *                 duration: {type: number, description: Solve time in ms}
+ *                 size: {type: string}
+ *       404: {description: Game not found}
+ */
 router.get<{gid: string}, GetGameResponse>('/:gid', async (req, res) => {
   try {
     const {gid} = req.params;
@@ -51,6 +107,23 @@ router.get<{gid: string}, GetGameResponse>('/:gid', async (req, res) => {
   return undefined;
 });
 
+/**
+ * @openapi
+ * /game/{gid}/dismiss:
+ *   post:
+ *     tags: [Games]
+ *     summary: Dismiss a game
+ *     description: Hide a game from the authenticated user's in-progress list.
+ *     security: [{bearerAuth: []}]
+ *     parameters:
+ *       - in: path
+ *         name: gid
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       204: {description: Game dismissed}
+ *       401: {description: Not authenticated}
+ */
 router.post<{gid: string}>('/:gid/dismiss', async (req, res, next) => {
   try {
     const {gid} = req.params;
@@ -72,6 +145,23 @@ router.post<{gid: string}>('/:gid/dismiss', async (req, res, next) => {
   return undefined;
 });
 
+/**
+ * @openapi
+ * /game/{gid}/undismiss:
+ *   post:
+ *     tags: [Games]
+ *     summary: Undismiss a game
+ *     description: Restore a dismissed game to the authenticated user's in-progress list.
+ *     security: [{bearerAuth: []}]
+ *     parameters:
+ *       - in: path
+ *         name: gid
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       204: {description: Game restored}
+ *       401: {description: Not authenticated}
+ */
 router.post<{gid: string}>('/:gid/undismiss', async (req, res, next) => {
   try {
     const {gid} = req.params;

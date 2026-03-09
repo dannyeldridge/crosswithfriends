@@ -6,6 +6,41 @@ import {verifyAccessToken} from '../auth/jwt';
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /record_solve/{pid}:
+ *   post:
+ *     tags: [Puzzles]
+ *     summary: Record a puzzle solve
+ *     description: Record that a puzzle was solved, with timing and snapshot data. Optionally authenticated.
+ *     security: [{bearerAuth: []}, {}]
+ *     parameters:
+ *       - in: path
+ *         name: pid
+ *         required: true
+ *         schema: {type: string}
+ *         description: Puzzle ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [gid, time_to_solve, player_count]
+ *             properties:
+ *               gid: {type: string, description: Game ID}
+ *               time_to_solve: {type: number, description: Solve time in milliseconds}
+ *               player_count: {type: integer}
+ *               snapshot: {type: object, description: Grid snapshot data}
+ *               keep_replay: {type: boolean, description: Whether to retain replay data}
+ *     responses:
+ *       200:
+ *         description: Solve recorded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 router.post<{pid: string}, RecordSolveResponse, RecordSolveRequest>('/:pid', async (req, res, next) => {
   const {gid, time_to_solve, player_count, snapshot, keep_replay} = req.body;
 

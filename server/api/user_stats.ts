@@ -7,6 +7,44 @@ import {verifyAccessToken} from '../auth/jwt';
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /user-stats/{userId}:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get user profile and stats
+ *     description: Returns solve stats, history, uploads, and in-progress games for a user. Private profiles return {isPrivate: true} unless the requester is the owner.
+ *     security: [{bearerAuth: []}, {}]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       200:
+ *         description: User stats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isPrivate: {type: boolean, description: Present when profile is private}
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     displayName: {type: string}
+ *                     createdAt: {type: string, format: date-time}
+ *                 stats:
+ *                   type: object
+ *                   properties:
+ *                     totalSolved: {type: integer}
+ *                     bySize: {type: object}
+ *                     byDay: {type: object}
+ *                 history: {type: array, items: {type: object}}
+ *                 uploads: {type: array, items: {type: object}}
+ *                 inProgress: {type: array, items: {type: object}, description: Only present for the profile owner}
+ *       404: {description: User not found}
+ */
 router.get('/:userId', async (req, res, next) => {
   try {
     const {userId} = req.params;

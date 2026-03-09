@@ -8,6 +8,7 @@ import {getPuzzleInfo} from '../model/puzzle';
 
 const router = express.Router();
 
+// TODO: revisit link preview implementation
 router.get('/', async (req, res) => {
   let url;
 

@@ -114,10 +114,6 @@ export interface AddPuzzleResponse {
   duplicate?: boolean;
 }
 
-export interface ListPuzzleStatsRequest {
-  gids: string[];
-}
-
 export interface ListPuzzleRequest {
   filter: ListPuzzleRequestFilters;
   page: number;
@@ -155,28 +151,6 @@ export interface ListPuzzleResponse {
     content: PuzzleJson;
     stats: PuzzleStatsJson;
     isPublic?: boolean;
-  }[];
-}
-
-export interface ListPuzzleStatsResponse {
-  stats: {
-    size: string;
-    nPuzzlesSolved: number;
-    avgSolveTime: number;
-    bestSolveTime: number;
-    bestSolveTimeGameId: string;
-    avgCheckedSquareCount: number;
-    avgRevealedSquareCount: number;
-  }[];
-  history: {
-    puzzleId: string;
-    gameId: string;
-    title: string;
-    size: string;
-    dateSolved: string;
-    solveTime: number;
-    checkedSquareCount: number;
-    revealedSquareCount: number;
   }[];
 }
 

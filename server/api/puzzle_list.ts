@@ -6,6 +6,51 @@ import {optionalAuth} from '../auth/middleware';
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /puzzle_list:
+ *   get:
+ *     tags: [Puzzles]
+ *     summary: List puzzles
+ *     description: Returns a paginated list of puzzles with optional filters for size, type, day of week, and name/title search.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: true
+ *         schema: {type: integer}
+ *         description: Zero-based page index
+ *       - in: query
+ *         name: pageSize
+ *         required: true
+ *         schema: {type: integer}
+ *         description: Number of puzzles per page
+ *       - in: query
+ *         name: filter
+ *         schema: {type: object}
+ *         style: deepObject
+ *         description: Nested filter object with sizeFilter, typeFilter, dayOfWeekFilter, nameOrTitleFilter
+ *     responses:
+ *       200:
+ *         description: Paginated puzzle list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 puzzles:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       pid: {type: string}
+ *                       content: {type: object}
+ *                       stats:
+ *                         type: object
+ *                         properties:
+ *                           numSolves: {type: integer}
+ *                       isPublic: {type: boolean}
+ *       400: {description: Invalid page/pageSize}
+ */
 router.get<{}, ListPuzzleResponse>('/', optionalAuth, async (req, res, next) => {
   try {
     const page = Number.parseInt(req.query.page as string, 10);

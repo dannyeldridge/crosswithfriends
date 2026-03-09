@@ -6,7 +6,31 @@ import {pool} from '../model/pool';
 
 const router = express.Router();
 
-// GET /api/game-snapshot/:gid — returns snapshot or solution-only fallback
+/**
+ * @openapi
+ * /game-snapshot/{gid}:
+ *   get:
+ *     tags: [Games]
+ *     summary: Get game snapshot
+ *     description: Returns a solved game snapshot with grid state, or falls back to the puzzle solution if no snapshot exists.
+ *     parameters:
+ *       - in: path
+ *         name: gid
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       200:
+ *         description: Game snapshot or solution fallback
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 type: {type: string, enum: [snapshot, solution_only]}
+ *                 gid: {type: string}
+ *                 pid: {type: string}
+ *       404: {description: No snapshot or solve record found}
+ */
 router.get('/:gid', async (req, res, next) => {
   try {
     const {gid} = req.params;
@@ -52,7 +76,31 @@ router.get('/:gid', async (req, res, next) => {
   }
 });
 
-// POST /api/game-snapshot/:gid/keep-replay — opt in to retaining replay data
+/**
+ * @openapi
+ * /game-snapshot/{gid}/keep-replay:
+ *   post:
+ *     tags: [Games]
+ *     summary: Retain replay data
+ *     description: Opt in to keeping the replay data for a completed game.
+ *     security: [{bearerAuth: []}]
+ *     parameters:
+ *       - in: path
+ *         name: gid
+ *         required: true
+ *         schema: {type: string}
+ *     responses:
+ *       200:
+ *         description: Replay retained
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok: {type: boolean}
+ *       401: {description: Not authenticated}
+ *       404: {description: No snapshot found}
+ */
 router.post('/:gid/keep-replay', async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;

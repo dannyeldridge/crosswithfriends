@@ -3,7 +3,34 @@ import {computeGamesProgress} from '../model/game_progress';
 
 const router = express.Router();
 
-// POST /api/game-progress — compute percent complete for a list of game IDs
+/**
+ * @openapi
+ * /game-progress:
+ *   post:
+ *     tags: [Games]
+ *     summary: Get game progress
+ *     description: Compute percent complete for a list of game IDs (max 20).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [gids]
+ *             properties:
+ *               gids:
+ *                 type: array
+ *                 items: {type: string}
+ *                 maxItems: 20
+ *     responses:
+ *       200:
+ *         description: Map of game ID to percent complete (0-100)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               additionalProperties: {type: number}
+ */
 router.post('/', async (req, res, next) => {
   try {
     const {gids} = req.body;

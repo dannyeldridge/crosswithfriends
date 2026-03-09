@@ -10,8 +10,10 @@ import http from 'http';
 import {Server} from 'socket.io';
 import _ from 'lodash';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import SocketManager from './SocketManager';
 import apiRouter from './api/router';
+import {swaggerSpec} from './swagger';
 import passport from './auth/passport';
 import {optionalAuth} from './auth/middleware';
 import {cleanupExpiredTokens} from './model/refresh_token';
@@ -64,6 +66,7 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan('tiny'));
 }
 
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api', apiRouter);
 
 // Optionally serve the built frontend (used in Docker / self-hosted setups)

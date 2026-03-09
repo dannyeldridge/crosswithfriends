@@ -2,6 +2,7 @@ import express from 'express';
 
 const router = express.Router();
 
+// TODO: revisit oembed implementation
 router.get('/', async (req, res) => {
   const author = req.query.author as string;
 
