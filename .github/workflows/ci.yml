@@ -203,7 +203,7 @@ jobs:
           node-version: '22'
 
       - name: Check for known vulnerabilities
-        run: pnpm audit
+        run: pnpm audit --ignore-registry-errors
 
   build:
     name: Build
