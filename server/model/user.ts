@@ -33,7 +33,6 @@ export async function createLocalUser(
   password: string,
   displayName: string
 ): Promise<UserRow> {
-  const startTime = Date.now();
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   const res = await pool.query(
     `INSERT INTO users (email, password_hash, display_name, auth_provider)
@@ -41,8 +40,6 @@ export async function createLocalUser(
      RETURNING id, email, password_hash, display_name, auth_provider, oauth_id, created_at, updated_at, email_verified_at, profile_is_public`,
     [email.toLowerCase(), passwordHash, displayName]
   );
-  const ms = Date.now() - startTime;
-  console.log(`createLocalUser(${email}) took ${ms}ms`);
   return res.rows[0];
 }
 
@@ -61,7 +58,6 @@ export async function findOrCreateGoogleUser(
   email: string,
   displayName: string
 ): Promise<UserRow> {
-  const startTime = Date.now();
   const lowerEmail = email.toLowerCase();
 
   // Check if a user already has this Google oauth_id linked (any auth_provider)
@@ -73,8 +69,6 @@ export async function findOrCreateGoogleUser(
   );
 
   if (byOauth.rows[0]) {
-    const ms = Date.now() - startTime;
-    console.log(`findOrCreateGoogleUser(${googleId}) found by oauth_id, took ${ms}ms`);
     return byOauth.rows[0];
   }
 
@@ -100,8 +94,6 @@ export async function findOrCreateGoogleUser(
        RETURNING id, email, password_hash, display_name, auth_provider, oauth_id, created_at, updated_at, email_verified_at, profile_is_public`,
       [lowerEmail, displayName, googleId]
     );
-    const ms = Date.now() - startTime;
-    console.log(`findOrCreateGoogleUser(${googleId}) created new, took ${ms}ms`);
     return res.rows[0];
   } catch (err: any) {
     if (err.code === '23505') {
@@ -128,7 +120,6 @@ export async function verifyPassword(plaintext: string, hash: string): Promise<b
 }
 
 export async function linkDfacId(userId: string, dfacId: string): Promise<boolean> {
-  const startTime = Date.now();
   const result = await pool.query(
     `INSERT INTO user_identity_map (user_id, dfac_id)
      VALUES ($1, $2)
@@ -136,8 +127,6 @@ export async function linkDfacId(userId: string, dfacId: string): Promise<boolea
     [userId, dfacId]
   );
   const isNew = (result.rowCount || 0) > 0;
-  const ms = Date.now() - startTime;
-  console.log(`linkDfacId(${userId}, ${dfacId}) ${isNew ? 'NEW' : 'already linked'} in ${ms}ms`);
   return isNew;
 }
 

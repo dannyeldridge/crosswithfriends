@@ -167,15 +167,11 @@ export type InProgressGameItem = {
 };
 
 export async function getInProgressGames(userId: string): Promise<InProgressGameItem[]> {
-  const startTime = Date.now();
-
   // Look up the user's legacy dfac_id(s)
   const idResult = await pool.query('SELECT dfac_id FROM user_identity_map WHERE user_id = $1', [userId]);
   const dfacIds = idResult.rows.map((r: {dfac_id: string}) => r.dfac_id);
 
   if (dfacIds.length === 0) {
-    const ms = Date.now() - startTime;
-    console.log(`getInProgressGames(${userId}) no dfac_ids, took ${ms}ms`);
     return [];
   }
 
@@ -237,9 +233,6 @@ export async function getInProgressGames(userId: string): Promise<InProgressGame
   const gids = result.rows.map((r: any) => r.gid);
   const progressMap = await computeGamesProgress(gids);
 
-  const ms = Date.now() - startTime;
-  console.log(`getInProgressGames(${userId}) found ${result.rows.length} games in ${ms}ms`);
-
   return result.rows.map((r: any) => ({
     gid: r.gid,
     pid: r.pid,
@@ -251,7 +244,6 @@ export async function getInProgressGames(userId: string): Promise<InProgressGame
 }
 
 export async function backfillSolvesForDfacId(userId: string, dfacId: string): Promise<number> {
-  const startTime = Date.now();
   // Find anonymous puzzle_solves for games where this dfac_id participated
   const result = await pool.query(
     `INSERT INTO puzzle_solves (pid, gid, solved_time, time_taken_to_solve, user_id, player_count)
@@ -267,8 +259,6 @@ export async function backfillSolvesForDfacId(userId: string, dfacId: string): P
     [userId, dfacId]
   );
   const count = result.rowCount || 0;
-  const ms = Date.now() - startTime;
-  console.log(`backfillSolvesForDfacId(${userId}, ${dfacId}) backfilled ${count} solves in ${ms}ms`);
   return count;
 }
 
@@ -296,7 +286,6 @@ type RawFetchedPuzzleSolve = {
 };
 
 export async function getPuzzleSolves(gids: string[]): Promise<SolvedPuzzleType[]> {
-  const startTime = Date.now();
   const {rows}: {rows: RawFetchedPuzzleSolve[]} = await pool.query(
     `
       SELECT
@@ -353,7 +342,5 @@ export async function getPuzzleSolves(gids: string[]): Promise<SolvedPuzzleType[
       };
     })
     .sort((a, b) => b.solved_time.getTime() - a.solved_time.getTime());
-  const ms = Date.now() - startTime;
-  console.log(`getPuzzleSolves took ${ms}ms for ${gids.length} gids`);
   return puzzleSolves;
 }

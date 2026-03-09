@@ -6,7 +6,6 @@ function hashToken(token: string): string {
 }
 
 export async function createRefreshToken(userId: string, expiresInDays = 7): Promise<string> {
-  const startTime = Date.now();
   const rawToken = crypto.randomBytes(48).toString('hex');
   const tokenHash = hashToken(rawToken);
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
@@ -17,8 +16,6 @@ export async function createRefreshToken(userId: string, expiresInDays = 7): Pro
     [userId, tokenHash, expiresAt.toISOString()]
   );
 
-  const ms = Date.now() - startTime;
-  console.log(`createRefreshToken(${userId}) took ${ms}ms`);
   return rawToken;
 }
 

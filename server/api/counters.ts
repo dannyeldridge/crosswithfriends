@@ -10,7 +10,6 @@ import {incrementGid, incrementPid} from '../model/counters';
 const router = express.Router();
 
 router.post<{}, IncrementGidResponse, IncrementGidRequest>('/gid', async (req, res) => {
-  console.log('increment gid');
   const gid = await incrementGid();
   res.json({
     gid,
@@ -18,7 +17,6 @@ router.post<{}, IncrementGidResponse, IncrementGidRequest>('/gid', async (req, r
 });
 
 router.post<{}, IncrementPidResponse, IncrementPidRequest>('/pid', async (req, res) => {
-  console.log('increment pid');
   const pid = await incrementPid();
   res.json({
     pid,

@@ -9,7 +9,6 @@ import {dayOfWeekExtract} from './sql_helpers';
 // ================ Read and Write methods used to interface with postgres ========== //
 
 export async function getPuzzle(pid: string): Promise<PuzzleJson | null> {
-  const startTime = Date.now();
   const {rows} = await pool.query(
     `
       SELECT content
@@ -18,8 +17,6 @@ export async function getPuzzle(pid: string): Promise<PuzzleJson | null> {
     `,
     [pid]
   );
-  const ms = Date.now() - startTime;
-  console.log(`getPuzzle (${pid}) took ${ms}ms`);
   const row = _.first(rows);
   return row ? row.content : null;
 }
@@ -116,7 +113,6 @@ export async function listPuzzles(
     is_public: boolean;
   }[]
 > {
-  const startTime = Date.now();
   const parametersForTitleAuthorFilter = filter.nameOrTitleFilter.split(/\s/).map((s) => `%${s}%`);
   const parameterOffset = 3;
   // we create the query this way as POSTGRES optimizer does not use the index for an ILIKE ALL clause, but will for multiple ANDs
@@ -174,8 +170,6 @@ export async function listPuzzles(
       times_solved: Number(row.times_solved),
     })
   );
-  const ms = Date.now() - startTime;
-  console.log(`listPuzzles (${JSON.stringify(filter)}, ${limit}, ${offset}) took ${ms}ms`);
   return puzzles;
 }
 
@@ -209,7 +203,6 @@ const puzzleValidator = Joi.object({
 });
 
 function validatePuzzle(puzzle: any) {
-  console.log(_.keys(puzzle));
   const {error} = puzzleValidator.validate(puzzle);
   if (error) {
     throw new Error(error.message);

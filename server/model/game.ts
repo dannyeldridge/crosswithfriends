@@ -5,11 +5,8 @@ import {getPuzzle} from './puzzle';
 import {getGameSnapshot} from './game_snapshot';
 
 export async function getGameEvents(gid: string) {
-  const startTime = Date.now();
   const res = await pool.query('SELECT event_payload FROM game_events WHERE gid=$1 ORDER BY ts ASC', [gid]);
   const events = _.map(res.rows, 'event_payload');
-  const ms = Date.now() - startTime;
-  console.log(`getGameEvents(${gid}) took ${ms}ms`);
 
   // If a snapshot exists and replay was NOT retained, overlay the solved state
   // onto the create event and return only that. Snapshots are the authoritative
@@ -41,13 +38,10 @@ export async function getGameInfo(gid: string) {
     gid,
   ]);
   if (res.rowCount !== 1) {
-    console.log(`Could not find info for game ${gid}`);
     return {};
   }
 
-  const info = res.rows[0].event_payload.params.game.info;
-  console.log(`${gid} game info: ${JSON.stringify(info)}`);
-  return info;
+  return res.rows[0].event_payload.params.game.info;
 }
 
 export interface GameEvent {
@@ -80,7 +74,6 @@ export async function addGameEvent(gid: string, event: GameEvent) {
 export async function addInitialGameEvent(gid: string, pid: string) {
   const puzzle = await getPuzzle(pid);
   if (!puzzle) throw new Error(`Puzzle not found: ${pid}`);
-  console.log('got puzzle', puzzle);
   const {
     info = {},
     grid: solution = [['']],

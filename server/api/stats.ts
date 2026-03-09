@@ -44,7 +44,6 @@ router.post<{gids: string[]}, ListPuzzleStatsResponse, ListPuzzleStatsRequest>(
   '/',
   async (req, res, next) => {
     const gids = req.body.gids;
-    const startTime = Date.now();
     if (!Array.isArray(gids) || !_.every(gids, (it) => typeof it === 'string')) {
       next(_.assign(new Error('gids are invalid'), {statusCode: 400}));
     }
@@ -70,8 +69,6 @@ router.post<{gids: string[]}, ListPuzzleStatsResponse, ListPuzzleStatsRequest>(
       revealedSquareCount: solve.revealed_squares_count,
     }));
 
-    const ms = Date.now() - startTime;
-    console.log(`overall /api/stats took ${ms}ms for ${puzzleSolves.length} solves`);
     res.json({
       stats,
       history,

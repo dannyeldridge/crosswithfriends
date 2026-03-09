@@ -13,8 +13,6 @@ interface CellState {
 export async function computeGamesProgress(gids: string[]): Promise<Map<string, number>> {
   if (gids.length === 0) return new Map();
 
-  const startTime = Date.now();
-
   // Fetch all events for these games in one query, ordered by timestamp
   const result = await pool.query(
     `SELECT gid, event_type, event_payload
@@ -39,9 +37,6 @@ export async function computeGamesProgress(gids: string[]): Promise<Map<string, 
     const percent = computeSingleGameProgress(events);
     progressMap.set(gid, percent);
   }
-
-  const ms = Date.now() - startTime;
-  console.log(`computeGamesProgress for ${gids.length} games took ${ms}ms`);
 
   return progressMap;
 }
