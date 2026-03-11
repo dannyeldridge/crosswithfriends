@@ -51,7 +51,7 @@ FROM generate_series(1, 200) AS i;
 INSERT INTO puzzles (pid, is_public, uploaded_at, content, uploaded_by, content_hash)
 SELECT
   'lt-mini-' || i,
-  false,
+  true,
   NOW() - (random() * interval '365 days'),
   jsonb_build_object(
     'grid', (SELECT jsonb_agg(
@@ -99,7 +99,7 @@ FROM generate_series(1, 200) AS i;
 INSERT INTO puzzles (pid, is_public, uploaded_at, content, uploaded_by, content_hash)
 SELECT
   'lt-std-' || i,
-  false,
+  true,
   NOW() - (random() * interval '365 days'),
   jsonb_build_object(
     'grid', (SELECT jsonb_agg(
@@ -142,7 +142,7 @@ FROM generate_series(1, 250) AS i;
 INSERT INTO puzzles (pid, is_public, uploaded_at, content, uploaded_by, content_hash)
 SELECT
   'lt-lg-' || i,
-  false,
+  true,
   NOW() - (random() * interval '365 days'),
   jsonb_build_object(
     'grid', (SELECT jsonb_agg(
