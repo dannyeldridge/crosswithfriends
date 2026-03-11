@@ -70,7 +70,7 @@ export function login(http, email, password) {
     {headers: {'Content-Type': 'application/json'}}
   );
   if (res.status === 200) {
-    return JSON.parse(res.body).accessToken;
+    return res.json('accessToken') || null;
   }
   return null;
 }

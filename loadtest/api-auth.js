@@ -47,8 +47,8 @@ export function setup() {
     );
     loginDuration.add(res.timings.duration);
     if (res.status === 200) {
-      const body = JSON.parse(res.body);
-      tokens.push(body.accessToken);
+      const accessToken = res.json('accessToken');
+      if (accessToken) tokens.push(accessToken);
     } else {
       console.warn(`Setup login failed for user ${i} with status ${res.status}`);
     }
