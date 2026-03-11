@@ -375,6 +375,103 @@ describe('reduce — solved detection with image cells', () => {
   });
 });
 
+describe('reduce — check/reveal/reset with out-of-bounds scope', () => {
+  it('check ignores scope coordinates beyond grid dimensions', () => {
+    let game = makeGame(); // 2x2 grid
+    game = reduce(game, {
+      type: 'updateCell',
+      timestamp: 2000,
+      params: {cell: {r: 0, c: 0}, value: 'A', id: 'u1'},
+    });
+    // Scope includes an out-of-bounds row (r=5 on a 2-row grid)
+    game = reduce(game, {
+      type: 'check',
+      timestamp: 3000,
+      params: {
+        scope: [
+          {r: 0, c: 0},
+          {r: 5, c: 0},
+        ],
+      },
+    });
+    // The in-bounds cell should still be checked correctly
+    expect(game.grid[0][0].good).toBe(true);
+  });
+
+  it('check ignores scope coordinates with out-of-bounds column', () => {
+    let game = makeGame(); // 2x2 grid
+    game = reduce(game, {
+      type: 'updateCell',
+      timestamp: 2000,
+      params: {cell: {r: 0, c: 0}, value: 'A', id: 'u1'},
+    });
+    game = reduce(game, {
+      type: 'check',
+      timestamp: 3000,
+      params: {
+        scope: [
+          {r: 0, c: 0},
+          {r: 0, c: 10},
+        ],
+      },
+    });
+    expect(game.grid[0][0].good).toBe(true);
+  });
+
+  it('reveal ignores out-of-bounds scope coordinates', () => {
+    let game = makeGame(); // 2x2 grid
+    game = reduce(game, {
+      type: 'reveal',
+      timestamp: 2000,
+      params: {
+        scope: [
+          {r: 0, c: 0},
+          {r: 99, c: 99},
+        ],
+      },
+    });
+    expect(game.grid[0][0].value).toBe('A');
+    expect(game.grid[0][0].good).toBe(true);
+  });
+
+  it('reset ignores out-of-bounds scope coordinates', () => {
+    let game = makeGame();
+    game = reduce(game, {
+      type: 'updateCell',
+      timestamp: 2000,
+      params: {cell: {r: 0, c: 0}, value: 'A', id: 'u1'},
+    });
+    game = reduce(game, {
+      type: 'reset',
+      timestamp: 3000,
+      params: {
+        scope: [
+          {r: 0, c: 0},
+          {r: 5, c: 0},
+        ],
+      },
+    });
+    expect(game.grid[0][0].value).toBe('');
+  });
+
+  it('check with entirely out-of-bounds scope does not crash', () => {
+    let game = makeGame();
+    // All scope coordinates are out of bounds
+    game = reduce(game, {
+      type: 'check',
+      timestamp: 2000,
+      params: {
+        scope: [
+          {r: 10, c: 10},
+          {r: -1, c: 0},
+        ],
+      },
+    });
+    // Game should be returned unchanged (no crash)
+    expect(game.grid[0][0].good).toBeFalsy();
+  });
+});
+
 describe('reduce — contest puzzles', () => {
   function makeContestGame() {
     return makeGame({

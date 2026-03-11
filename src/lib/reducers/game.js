@@ -6,7 +6,9 @@ import {MAIN_BLUE_3} from '../colors';
 function getScopeGrid(grid, scope) {
   const scopeGrid = grid.map((row) => row.map(() => false));
   scope.forEach(({r, c}) => {
-    scopeGrid[r][c] = true;
+    if (r >= 0 && r < grid.length && c >= 0 && c < grid[r].length) {
+      scopeGrid[r][c] = true;
+    }
   });
   return scopeGrid;
 }

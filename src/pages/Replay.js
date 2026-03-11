@@ -85,6 +85,7 @@ class Replay extends Component {
   }
 
   handleSetPosition = (position, isAutoplay = false) => {
+    if (this.state.history.length === 0) return;
     const clampedPosition = Math.min(
       position,
       this.state.history[this.state.history.length - 1].gameTimestamp
