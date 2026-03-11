@@ -1,6 +1,31 @@
 import {pool} from './pool';
 import {dayOfWeekExtract} from './sql_helpers';
 
+// ---- In-memory TTL cache for in-progress games ----
+const IN_PROGRESS_CACHE_TTL_MS = 60 * 1000; // 60 seconds
+const IN_PROGRESS_MAX_CACHE_SIZE = 500;
+
+interface InProgressCacheEntry {
+  data: InProgressGameItem[];
+  expiresAt: number;
+}
+
+const inProgressGamesCache = new Map<string, InProgressCacheEntry>();
+
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, entry] of inProgressGamesCache) {
+      if (entry.expiresAt <= now) inProgressGamesCache.delete(key);
+    }
+  },
+  5 * 60 * 1000
+).unref();
+
+export function clearInProgressGamesCache(): void {
+  inProgressGamesCache.clear();
+}
+
 export type UserSolveHistoryItem = {
   pid: string;
   gid: string;
@@ -152,6 +177,9 @@ export type InProgressGameItem = {
 };
 
 export async function getInProgressGames(userId: string): Promise<InProgressGameItem[]> {
+  const cached = inProgressGamesCache.get(userId);
+  if (cached && cached.expiresAt > Date.now()) return cached.data;
+
   // Look up the user's legacy dfac_id(s)
   const idResult = await pool.query('SELECT dfac_id FROM user_identity_map WHERE user_id = $1', [userId]);
   const dfacIds = idResult.rows.map((r: {dfac_id: string}) => r.dfac_id);
@@ -215,7 +243,7 @@ export async function getInProgressGames(userId: string): Promise<InProgressGame
     [dfacIds, userId]
   );
 
-  return result.rows.map((r: any) => ({
+  const items = result.rows.map((r: any) => ({
     gid: r.gid,
     pid: r.pid,
     title: r.title || 'Untitled',
@@ -223,6 +251,11 @@ export async function getInProgressGames(userId: string): Promise<InProgressGame
     lastActivity: r.last_activity ? r.last_activity.toISOString() : '',
     percentComplete: 0,
   }));
+
+  if (inProgressGamesCache.size >= IN_PROGRESS_MAX_CACHE_SIZE) inProgressGamesCache.clear();
+  inProgressGamesCache.set(userId, {data: items, expiresAt: Date.now() + IN_PROGRESS_CACHE_TTL_MS});
+
+  return items;
 }
 
 export async function backfillSolvesForDfacId(userId: string, dfacId: string): Promise<number> {

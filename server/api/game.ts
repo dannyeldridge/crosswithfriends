@@ -7,6 +7,7 @@ import {getPuzzleSolves} from '../model/puzzle_solve';
 import {getPuzzleInfo} from '../model/puzzle';
 import {verifyAccessToken} from '../auth/jwt';
 import {dismissGameForUser, undismissGameForUser} from '../model/game_dismissal';
+import {invalidateUserGamesCacheForUser} from '../model/user_games';
 
 const router = express.Router();
 
@@ -41,6 +42,10 @@ const router = express.Router();
 router.post<{}, CreateGameResponse | {error: string}, CreateGameRequest>('/', async (req, res, next) => {
   try {
     const gid = await addInitialGameEvent(req.body.gid, req.body.pid);
+    // Invalidate user games cache so the "Your Games" page reflects the new game immediately
+    if (req.body.dfac_id) {
+      invalidateUserGamesCacheForUser(req.body.dfac_id);
+    }
     res.json({gid});
   } catch (e) {
     if (e instanceof Error && e.message.startsWith('Puzzle not found')) {
