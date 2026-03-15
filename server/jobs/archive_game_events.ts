@@ -91,34 +91,38 @@ async function cleanupSolvedGames(): Promise<CleanupStats> {
 async function cleanupAbandonedGames(): Promise<CleanupStats> {
   const stats: CleanupStats = {category: 'abandoned', gamesProcessed: 0, eventsDeleted: 0};
 
-  // Find abandoned game IDs
-  const {rows: eligible} = await pool.query(
-    `SELECT ge.gid
-     FROM game_events ge
-     WHERE NOT EXISTS (SELECT 1 FROM game_snapshots gs WHERE gs.gid = ge.gid)
-       AND NOT EXISTS (SELECT 1 FROM puzzle_solves ps WHERE ps.gid = ge.gid)
-     GROUP BY ge.gid
-     HAVING MAX(ge.ts) < NOW() - ($1 || ' days')::interval`,
-    [String(ABANDON_DAYS)]
-  );
-
-  stats.gamesProcessed = eligible.length;
-  if (eligible.length === 0) return stats;
-
-  const gids = eligible.map((r: {gid: string}) => r.gid);
-
   if (DRY_RUN) {
     const {
       rows: [{count}],
-    } = await pool.query(`SELECT COUNT(*) FROM game_events WHERE gid = ANY($1)`, [gids]);
+    } = await pool.query(
+      `SELECT COUNT(*) FROM game_events ge
+       WHERE NOT EXISTS (SELECT 1 FROM game_snapshots gs WHERE gs.gid = ge.gid)
+         AND NOT EXISTS (SELECT 1 FROM puzzle_solves ps WHERE ps.gid = ge.gid)
+         AND ge.gid IN (
+           SELECT gid FROM game_events
+           GROUP BY gid
+           HAVING MAX(ts) < NOW() - ($1 || ' days')::interval
+         )`,
+      [String(ABANDON_DAYS)]
+    );
     stats.eventsDeleted = Number(count);
-    console.log(`  [DRY RUN] Would delete ${count} events from ${gids.length} abandoned games`);
+    console.log(`  [DRY RUN] Would delete ${count} events from abandoned games`);
     return stats;
   }
 
-  const result = await pool.query(`DELETE FROM game_events WHERE gid = ANY($1)`, [gids]);
+  const result = await pool.query(
+    `DELETE FROM game_events ge
+     WHERE NOT EXISTS (SELECT 1 FROM game_snapshots gs WHERE gs.gid = ge.gid)
+       AND NOT EXISTS (SELECT 1 FROM puzzle_solves ps WHERE ps.gid = ge.gid)
+       AND ge.gid IN (
+         SELECT gid FROM game_events
+         GROUP BY gid
+         HAVING MAX(ts) < NOW() - ($1 || ' days')::interval
+       )`,
+    [String(ABANDON_DAYS)]
+  );
   stats.eventsDeleted = result.rowCount || 0;
-  console.log(`  Deleted ${stats.eventsDeleted} events from ${gids.length} abandoned games`);
+  console.log(`  Deleted ${stats.eventsDeleted} events from abandoned games`);
 
   return stats;
 }
@@ -201,9 +205,7 @@ async function main() {
   // Summary
   console.log('=== Summary ===');
   console.log(`Solved: ${solvedStats.eventsDeleted} events ${DRY_RUN ? '(would be)' : ''} deleted`);
-  console.log(
-    `Abandoned: ${abandonedStats.gamesProcessed} games, ${abandonedStats.eventsDeleted} events ${DRY_RUN ? '(would be)' : ''} deleted`
-  );
+  console.log(`Abandoned: ${abandonedStats.eventsDeleted} events ${DRY_RUN ? '(would be)' : ''} deleted`);
   if (EXPIRE_REPLAY_DAYS > 0) {
     console.log(`Replay expirations: ${expired}`);
   }
