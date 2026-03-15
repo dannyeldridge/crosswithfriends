@@ -2,7 +2,7 @@
  * Automated archival/cleanup of game_events.
  *
  * Three categories of cleanup:
- *   1. Solved games with snapshots (replay_retained=false) — delete all events
+ *   1. Solved games with snapshots (replay_retained=false) — delete non-create events
  *   2. Abandoned games (no snapshot, no solve, inactive for N days) — delete all events
  *   3. (Optional) Expire replay_retained flag after N days
  *
@@ -15,10 +15,8 @@
  *
  * Environment variables:
  *   DRY_RUN            - Set to "1" for read-only mode (default: 0)
- *   GRACE_DAYS         - Grace period for solved games in days (default: 7)
+ *   GRACE_DAYS         - Grace period for solved games in days (default: 2)
  *   ABANDON_DAYS       - Inactivity threshold for abandoned games in days (default: 90)
- *   BATCH_SIZE         - Max games to process per category per run (default: 1000)
- *   DELETE_CREATE_EVENTS - Set to "1" to delete create events for solved games (default: 0)
  *   EXPIRE_REPLAY_DAYS - Auto-expire replay_retained after N days, 0 = disabled (default: 0)
  */
 
@@ -30,14 +28,12 @@ const pool = new pg.Pool({
   password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE,
   ssl: process.env.NODE_ENV === 'production' ? {rejectUnauthorized: false} : undefined,
-  statement_timeout: 300000, // 5 minutes — these queries scan large tables
+  statement_timeout: 600000, // 10 minutes
 });
 
 const DRY_RUN = process.env.DRY_RUN === '1';
-const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '1000', 10);
-const GRACE_DAYS = parseInt(process.env.GRACE_DAYS || '7', 10);
+const GRACE_DAYS = parseInt(process.env.GRACE_DAYS || '2', 10);
 const ABANDON_DAYS = parseInt(process.env.ABANDON_DAYS || '90', 10);
-const DELETE_CREATE_EVENTS = process.env.DELETE_CREATE_EVENTS === '1';
 const EXPIRE_REPLAY_DAYS = parseInt(process.env.EXPIRE_REPLAY_DAYS || '0', 10);
 
 interface CleanupStats {
@@ -47,66 +43,43 @@ interface CleanupStats {
 }
 
 /**
- * Category 1: Delete events for solved games with snapshots (replay_retained=false).
- * When DELETE_CREATE_EVENTS is false, keeps the create event as a safety net.
- * When DELETE_CREATE_EVENTS is true, deletes ALL events (including create) but only
- * if the puzzle still exists in the puzzles table.
+ * Category 1: Delete non-create events for solved games with snapshots.
+ * Keeps the create event (contains puzzle ID and game metadata).
  */
 async function cleanupSolvedGames(): Promise<CleanupStats> {
   const stats: CleanupStats = {category: 'solved', gamesProcessed: 0, eventsDeleted: 0};
 
-  const eventTypeFilter = DELETE_CREATE_EVENTS
-    ? '' // delete all events
-    : "AND ge.event_type != 'create'"; // keep create events
-
-  // Safety: when deleting create events, only do so if the puzzle still exists
-  const puzzleExistsCheck = DELETE_CREATE_EVENTS
-    ? 'AND EXISTS (SELECT 1 FROM puzzles p WHERE p.pid = gs.pid)'
-    : '';
-
-  // Find eligible games
-  const {rows: eligible} = await pool.query(
-    `SELECT gs.gid
-     FROM game_snapshots gs
-     WHERE gs.replay_retained = false
-       AND gs.created_at < NOW() - ($1 || ' days')::interval
-       ${puzzleExistsCheck}
-       AND EXISTS (
-         SELECT 1 FROM game_events ge
-         WHERE ge.gid = gs.gid ${eventTypeFilter}
-       )
-     LIMIT $2`,
-    [String(GRACE_DAYS), BATCH_SIZE]
-  );
-
-  stats.gamesProcessed = eligible.length;
-  if (eligible.length === 0) return stats;
-
-  const gids = eligible.map((r: {gid: string}) => r.gid);
-
   if (DRY_RUN) {
     const {
-      rows: [{count}],
+      rows: [{games, events}],
     } = await pool.query(
-      `SELECT COUNT(*) FROM game_events ge
-       WHERE ge.gid = ANY($1) ${eventTypeFilter}`,
-      [gids]
+      `SELECT
+         COUNT(DISTINCT ge.gid) AS games,
+         COUNT(*) AS events
+       FROM game_events ge
+       INNER JOIN game_snapshots gs ON gs.gid = ge.gid
+       WHERE gs.replay_retained = false
+         AND gs.created_at < NOW() - ($1 || ' days')::interval
+         AND ge.event_type != 'create'`,
+      [String(GRACE_DAYS)]
     );
-    stats.eventsDeleted = Number(count);
-    console.log(`  [DRY RUN] Would delete ${count} events from ${gids.length} solved games`);
-  } else {
-    const result = await pool.query(
-      `DELETE FROM game_events ge
-       WHERE ge.gid = ANY($1) ${eventTypeFilter}`,
-      [gids]
-    );
-    stats.eventsDeleted = result.rowCount || 0;
-    console.log(`  Deleted ${stats.eventsDeleted} events from ${gids.length} solved games`);
+    stats.gamesProcessed = Number(games);
+    stats.eventsDeleted = Number(events);
+    console.log(`  [DRY RUN] Would delete ${events} events from ${games} solved games`);
+    return stats;
   }
 
-  if (eligible.length === BATCH_SIZE) {
-    console.log('  Batch limit reached for solved games. Run again to process more.');
-  }
+  const result = await pool.query(
+    `DELETE FROM game_events ge
+     USING game_snapshots gs
+     WHERE gs.gid = ge.gid
+       AND gs.replay_retained = false
+       AND gs.created_at < NOW() - ($1 || ' days')::interval
+       AND ge.event_type != 'create'`,
+    [String(GRACE_DAYS)]
+  );
+  stats.eventsDeleted = result.rowCount || 0;
+  console.log(`  Deleted ${stats.eventsDeleted} events from solved games`);
 
   return stats;
 }
@@ -118,37 +91,38 @@ async function cleanupSolvedGames(): Promise<CleanupStats> {
 async function cleanupAbandonedGames(): Promise<CleanupStats> {
   const stats: CleanupStats = {category: 'abandoned', gamesProcessed: 0, eventsDeleted: 0};
 
-  const {rows: eligible} = await pool.query(
-    `SELECT ge.gid
-     FROM game_events ge
-     WHERE NOT EXISTS (SELECT 1 FROM game_snapshots gs WHERE gs.gid = ge.gid)
-       AND NOT EXISTS (SELECT 1 FROM puzzle_solves ps WHERE ps.gid = ge.gid)
-     GROUP BY ge.gid
-     HAVING MAX(ge.ts) < NOW() - ($1 || ' days')::interval
-     LIMIT $2`,
-    [String(ABANDON_DAYS), BATCH_SIZE]
-  );
-
-  stats.gamesProcessed = eligible.length;
-  if (eligible.length === 0) return stats;
-
-  const gids = eligible.map((r: {gid: string}) => r.gid);
-
   if (DRY_RUN) {
     const {
       rows: [{count}],
-    } = await pool.query(`SELECT COUNT(*) FROM game_events WHERE gid = ANY($1)`, [gids]);
+    } = await pool.query(
+      `SELECT COUNT(*) FROM game_events ge
+       WHERE NOT EXISTS (SELECT 1 FROM game_snapshots gs WHERE gs.gid = ge.gid)
+         AND NOT EXISTS (SELECT 1 FROM puzzle_solves ps WHERE ps.gid = ge.gid)
+         AND ge.gid IN (
+           SELECT gid FROM game_events
+           GROUP BY gid
+           HAVING MAX(ts) < NOW() - ($1 || ' days')::interval
+         )`,
+      [String(ABANDON_DAYS)]
+    );
     stats.eventsDeleted = Number(count);
-    console.log(`  [DRY RUN] Would delete ${count} events from ${gids.length} abandoned games`);
-  } else {
-    const result = await pool.query(`DELETE FROM game_events WHERE gid = ANY($1)`, [gids]);
-    stats.eventsDeleted = result.rowCount || 0;
-    console.log(`  Deleted ${stats.eventsDeleted} events from ${gids.length} abandoned games`);
+    console.log(`  [DRY RUN] Would delete ${count} events from abandoned games`);
+    return stats;
   }
 
-  if (eligible.length === BATCH_SIZE) {
-    console.log('  Batch limit reached for abandoned games. Run again to process more.');
-  }
+  const result = await pool.query(
+    `DELETE FROM game_events ge
+     WHERE NOT EXISTS (SELECT 1 FROM game_snapshots gs WHERE gs.gid = ge.gid)
+       AND NOT EXISTS (SELECT 1 FROM puzzle_solves ps WHERE ps.gid = ge.gid)
+       AND ge.gid IN (
+         SELECT gid FROM game_events
+         GROUP BY gid
+         HAVING MAX(ts) < NOW() - ($1 || ' days')::interval
+       )`,
+    [String(ABANDON_DAYS)]
+  );
+  stats.eventsDeleted = result.rowCount || 0;
+  console.log(`  Deleted ${stats.eventsDeleted} events from abandoned games`);
 
   return stats;
 }
@@ -190,8 +164,8 @@ async function expireReplayRetention(): Promise<number> {
 async function main() {
   console.log('=== Game Events Archive Job ===');
   console.log(`Mode: ${DRY_RUN ? 'DRY RUN' : 'LIVE'}`);
-  console.log(`Settings: GRACE_DAYS=${GRACE_DAYS}, ABANDON_DAYS=${ABANDON_DAYS}, BATCH_SIZE=${BATCH_SIZE}`);
-  console.log(`  DELETE_CREATE_EVENTS=${DELETE_CREATE_EVENTS}, EXPIRE_REPLAY_DAYS=${EXPIRE_REPLAY_DAYS}`);
+  console.log(`Settings: GRACE_DAYS=${GRACE_DAYS}, ABANDON_DAYS=${ABANDON_DAYS}`);
+  console.log(`  EXPIRE_REPLAY_DAYS=${EXPIRE_REPLAY_DAYS}`);
   console.log('');
 
   // Category 3 first — expire replays so they become eligible for Category 1
@@ -207,7 +181,7 @@ async function main() {
   // Category 1 — solved games with snapshots
   console.log('--- Category 1: Solved games with snapshots ---');
   const solvedStats = await cleanupSolvedGames();
-  if (solvedStats.gamesProcessed === 0) {
+  if (solvedStats.eventsDeleted === 0) {
     console.log('  Nothing to clean up.');
   }
   console.log('');
@@ -215,19 +189,23 @@ async function main() {
   // Category 2 — abandoned games
   console.log('--- Category 2: Abandoned games ---');
   const abandonedStats = await cleanupAbandonedGames();
-  if (abandonedStats.gamesProcessed === 0) {
+  if (abandonedStats.eventsDeleted === 0) {
     console.log('  Nothing to clean up.');
   }
   console.log('');
 
+  // Run ANALYZE after bulk deletes to update query planner statistics
+  if (!DRY_RUN && solvedStats.eventsDeleted + abandonedStats.eventsDeleted > 0) {
+    console.log('--- Running ANALYZE game_events ---');
+    await pool.query('ANALYZE game_events');
+    console.log('  Done.');
+    console.log('');
+  }
+
   // Summary
   console.log('=== Summary ===');
-  console.log(
-    `Solved: ${solvedStats.gamesProcessed} games, ${solvedStats.eventsDeleted} events ${DRY_RUN ? '(would be)' : ''} deleted`
-  );
-  console.log(
-    `Abandoned: ${abandonedStats.gamesProcessed} games, ${abandonedStats.eventsDeleted} events ${DRY_RUN ? '(would be)' : ''} deleted`
-  );
+  console.log(`Solved: ${solvedStats.eventsDeleted} events ${DRY_RUN ? '(would be)' : ''} deleted`);
+  console.log(`Abandoned: ${abandonedStats.eventsDeleted} events ${DRY_RUN ? '(would be)' : ''} deleted`);
   if (EXPIRE_REPLAY_DAYS > 0) {
     console.log(`Replay expirations: ${expired}`);
   }
