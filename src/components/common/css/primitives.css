@@ -291,3 +291,7 @@
 .flex--align-center {
   align-items: center;
 }
+
+.flex--center-h {
+  margin: 0 auto;
+}
