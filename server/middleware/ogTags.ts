@@ -124,7 +124,7 @@ export function ogTagsMiddleware(req: Request, res: Response, next: NextFunction
 async function handleGameOg(gid: string, res: Response, ua: string) {
   try {
     const info = (await getGameInfo(gid)) as InfoJson;
-    if (!info || !info.title) {
+    if (!info) {
       res.status(404).send('Game not found');
       return;
     }
