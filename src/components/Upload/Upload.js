@@ -80,7 +80,7 @@ export default class Upload extends Component {
         uploading: false,
       });
     } else {
-      const url = `/beta/play/${this.state.recentUnlistedPid}${this.props.fencing ? '?fencing=1' : ''}`;
+      const url = `/beta/play/${response.pid}${this.props.fencing ? '?fencing=1' : ''}`;
       this.setState({
         modal: {type: 'success', url, message: 'Successfully created an unlisted puzzle.'},
         uploading: false,
