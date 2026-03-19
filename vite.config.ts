@@ -23,7 +23,7 @@ export default defineConfig({
       include: /\.(jsx|js|tsx|ts)$/,
     }),
     VitePWA({
-      injectRegister: false,
+      injectRegister: 'auto',
       registerType: 'autoUpdate',
       devOptions: {
         enabled: true,
